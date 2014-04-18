@@ -32,20 +32,34 @@ download = [
 # Настройки
 ###############################################################################
 
+
 ###############################################################################
-# Проверки
+# Подключаем классы
 #
 
 import sys
+import re
+import os
+import feedparser
+import urllib.request
+
+#
+# Подключаем классы
+###############################################################################
+
+
+###############################################################################
+# Проверки
+#
+
+def is_hide():
+    return (
+        len(sys.argv) > 1 and sys.argv[1] == "hide"
+    )
+
+hide = is_hide()
 
 # Проверяем скрытно ли был запущен скрипт
-if (
-    len(sys.argv) > 1
-    and sys.argv[1] == "hide"
-):
-    hide = True
-else:
-    hide = False
 
 #
 # Проверки
@@ -53,89 +67,123 @@ else:
 
 
 ###############################################################################
-# Перебираем подкасты
+# Определяем функции
 #
 
-for podcast in download:
-
-    if hide is False:
-        print("\n" + 'Обрабатываем подкаст "' + podcast["name"] + '":')
-
+def get_mp3_url_from_rss(rss_url):
     # Парсим rss
-    import feedparser
-    feed = feedparser.parse(podcast["rss_url"])
+    feed = feedparser.parse(rss_url)
 
     if hide is False:
         print("\t" + "Получили rss ленту")
 
-    import re
-    mp3_url = re.search(
+    return re.search(
         "http://[0-9a-zA-Z\._\-/]+\.mp3",
         str(feed.entries[0])
     ).group()
 
-    if len(mp3_url) > 24:
 
+def get_filename_from_url(mp3_url):
+    return re.search("[0-9a-zA-Z\.\-_]+\.mp3", mp3_url).group()
+
+
+def delete_old_podcasts(folder, rotate):
+    stored_files = os.listdir(folder)
+    stored_files.sort()
+    stored_files_tmp = []
+
+    # Пропускаем файлы с точкой в начале
+    for i in range(len(stored_files)):
+        if (re.match("^\.", stored_files[i]) is None):
+            stored_files_tmp.append(stored_files[i])
+    stored_files = stored_files_tmp
+    stored_files_tmp = None
+    while (len(stored_files) > rotate):
+        oldest_file = folder + "/" + stored_files[0]
+        os.path.exists(oldest_file) and os.remove(oldest_file)
+        stored_files.remove(stored_files[0])
+
+
+def podcast_each(download):
+    for podcast in download:
+        podcast_process(podcast)
+
+
+def podcast_save(mp3_url, file_path):
+
+    # Открываем локальный файл
+    local_file = open(file_path, "wb")
+
+    # Открываем удалённый файл
+    remote_file = urllib.request.urlopen(mp3_url)
+
+    # Записываем удалённый файл в локальный
+    result = local_file.write(remote_file.read()) > 0
+
+    # Закрываем локальный файл
+    local_file.close()
+
+    return result
+
+
+def podcast_process(podcast):
+
+    if hide is False:
+        print("\n" + 'Обрабатываем подкаст "' + podcast["name"] + '":')
+
+    mp3_url = get_mp3_url_from_rss(podcast["rss_url"])
+
+    if len(mp3_url) < 24:
         if hide is False:
-            print("\t" + "Нашли в rss линк с mp3 последнего подкаста")
+            print("\t" + "Некорректная ссылка на mp3: " + mp3_url)
+        return
 
-        # Получаем имя файла
-        file_name = re.search("[0-9a-zA-Z\.\-_]+\.mp3", mp3_url).group()
-        file_path = podcast["folder"] + "/" + file_name
+    if hide is False:
+        print("\t" + "Нашли в rss линк на mp3 крайнего подкаста")
 
-        # Проверяем скачан ли уже этот подкаст, если его длина 0 - удаляем
+    # Получаем имя файла
+    file_name = get_filename_from_url(mp3_url)
 
-        import os
+    # Полный путь сохранения файла
+    file_path = podcast["folder"] + "/" + file_name
 
-        if os.path.isfile(file_path) and os.stat(file_path).st_size == 0:
-            os.remove(file_path)
+    # Проверяем скачан ли уже этот подкаст, если его длина 0 - удаляем
+    if os.path.isfile(file_path) and os.stat(file_path).st_size == 0:
+        os.remove(file_path)
 
-        if os.path.isfile(file_path):
+    if os.path.isfile(file_path):
+        if hide is False:
+            print("\t" + "У нас такой уже есть")
+        return
 
-            if hide is False:
-                print("\t" + "У нас такой уже есть")
-            if (os.stat(file_path).st_size == 0):
-                print(os.stat(file_path).st_size)
+    if hide is False:
+        print("\t" + "У нас такого ещё нет!")
 
-        else:
+    is_saved = podcast_save(mp3_url, file_path)
 
-            if hide is False:
-                print("\t" + "У нас такого ещё нет!")
+    if is_saved is False:
+        if hide is False:
+            print("\t" + "Не удалось скачать и записать файл")
+        return
 
-            # Открываем локальный файл
-            import urllib.request
-            local_file = open(file_path, "wb")
+    # Если файлов больше определённого количества - старые удаляем
+    delete_old_podcasts(podcast["folder"], podcast["rotate"])
 
-            # Открываем удалённый файл
-            remote_file = urllib.request.urlopen(mp3_url)
-            show_message = False
+    if hide is False:
+        print("\t" + "Успешно скачали новый подкаст")
 
-            # Записываем удалённый файл в локальный
-            if local_file.write(remote_file.read()) > 0:
-                show_message = True
-            local_file.close()
-
-            # Если файлов больше определённого количества - старые удаляем
-            stored_files = os.listdir(podcast["folder"])
-            stored_files.sort()
-            stored_files_tmp = []
-
-            # Пропускаем файлы с точкой в начале
-            for i in range(len(stored_files)):
-                if (re.match("^\.", stored_files[i]) is None):
-                    stored_files_tmp.append(stored_files[i])
-            stored_files = stored_files_tmp
-            stored_files_tmp = None
-            while (len(stored_files) > podcast["rotate"]):
-                oldest_file = podcast["folder"] + stored_files[0]
-                os.path.exists(oldest_file) and os.remove(oldest_file)
-                stored_files.remove(stored_files[0])
-
-            # Выводим сообщение
-            if show_message:
-                if hide is False:
-                    print("\t" + "Успешно скачали новый подкаст")
 
 #
-# Перебираем подкасты
+# Определяем функции
+###############################################################################
+
+
+###############################################################################
+# Запускаем
+#
+
+podcast_each(download)
+
+#
+# Запускаем
 ###############################################################################
