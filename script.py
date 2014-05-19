@@ -8,9 +8,7 @@
 download = [
     {
         "name": "The Big Podcast",
-        "rss_url": "http://bigpodcast.libsyn.com/" +
-        "e5bedb39cbd1856a9f29c542cab4df1aeba2c1cd33070d27ca0fe727c066a4f3" +
-        "2589bc883860b7f12cde208e248729c0b646dfc9801f5880ab3002d6cffc0576",
+        "rss_url": "http://bigpodcast.ru/rss",
         "folder": "/home/hobocta/podcasts/tbp",
         "rotate": 5,
     },
