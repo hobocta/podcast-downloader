@@ -24,6 +24,12 @@ download = [
         "folder": "/home/hobocta/podcasts/runetologia",
         "rotate": 5,
     },
+    {
+        "name": "Сделайте мне красиво!",
+        "rss_url": "http://makeitsexy.rpod.ru/rss_110y_1dfe.xml",
+        "folder": "/home/hobocta/podcasts/makeitsexy",
+        "rotate": 5,
+    },
 ]
 
 #
