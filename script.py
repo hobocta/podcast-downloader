@@ -115,17 +115,17 @@ def podcast_each(download):
 
 def podcast_save(mp3_url, file_path):
 
-    # Открываем локальный файл
-    local_file = open(file_path, "wb")
+    # Скачиваем mp3 в нужное место
+    local_file_path, headers = urllib.request.urlretrieve(mp3_url, file_path)
 
-    # Открываем удалённый файл
-    remote_file = urllib.request.urlopen(mp3_url)
-
-    # Записываем удалённый файл в локальный
-    result = local_file.write(remote_file.read()) > 0
-
-    # Закрываем локальный файл
+    # Получаем размер скачанного и сохранённого файла
+    local_file = open(local_file_path)
+    local_file.seek(0, os.SEEK_END)
+    local_file_size = local_file.tell()
     local_file.close()
+
+    # Размер скачанного файла больше нуля?
+    result = local_file_size > 0
 
     return result
 
