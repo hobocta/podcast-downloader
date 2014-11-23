@@ -61,9 +61,8 @@ def is_hide():
         len(sys.argv) > 1 and sys.argv[1] == "hide"
     )
 
-hide = is_hide()
-
 # Проверяем скрытно ли был запущен скрипт
+hide = is_hide()
 
 #
 # Проверки
