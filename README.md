@@ -38,4 +38,5 @@ download = [
 
 --
 
-Выполнение скрипта в консоли выглядит так — http://i.imgur.com/rlv84uj.png
+Выполнение скрипта в консоли выглядит так:
+![Скриншот bash](https://dl.dropboxusercontent.com/u/15126083/ShareX/2014/12/2014-12-04_20-26-54.png)
