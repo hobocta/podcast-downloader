@@ -30,6 +30,18 @@ download = [
         "folder": "/home/hobocta/podcasts/makeitsexy",
         "rotate": 5,
     },
+    {
+        "name": "RubyNoName",
+        "rss_url": "http://feeds.feedburner.com/rubynoname-standalone",
+        "folder": "/home/hobocta/podcasts/rubynoname",
+        "rotate": 5,
+    },
+    {
+        "name": "DevZen",
+        "rss_url": "http://devzen.ru/feed/",
+        "folder": "/home/hobocta/podcasts/devzen",
+        "rotate": 5,
+    },
 ]
 
 #
@@ -61,8 +73,9 @@ def is_hide():
         len(sys.argv) > 1 and sys.argv[1] == "hide"
     )
 
-# Проверяем скрытно ли был запущен скрипт
 hide = is_hide()
+
+# Проверяем скрытно ли был запущен скрипт
 
 #
 # Проверки
@@ -80,10 +93,9 @@ def get_mp3_url_from_rss(rss_url):
     if hide is False:
         print("\t" + "Получили rss ленту")
 
-    return re.search(
-        "http://[0-9a-zA-Z\._\-/]+\.mp3",
-        str(feed.entries[0])
-    ).group()
+    feedMp3 = feed.entries[0].enclosures[0].href
+
+    return feedMp3
 
 
 def get_filename_from_url(mp3_url):
@@ -136,9 +148,9 @@ def podcast_process(podcast):
 
     mp3_url = get_mp3_url_from_rss(podcast["rss_url"])
 
-    if len(mp3_url) < 24:
+    if mp3_url is False or len(mp3_url) < 24:
         if hide is False:
-            print("\t" + "Некорректная ссылка на mp3: " + mp3_url)
+            print("\t" + "Некорректная ссылка на mp3: " + str(mp3_url))
         return
 
     if hide is False:
