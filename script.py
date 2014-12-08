@@ -42,6 +42,36 @@ download = [
         "folder": "/home/hobocta/podcasts/devzen",
         "rotate": 5,
     },
+    {
+        "name": "Разбор полётов",
+        "rss_url": "http://feeds.feedburner.com/razbor-podcast",
+        "folder": "/home/hobocta/podcasts/razbor-poletov",
+        "rotate": 5,
+    },
+    {
+        "name": "Umputun",
+        "rss_url": "http://feeds.rucast.net/Umputun",
+        "folder": "/home/hobocta/podcasts/umputun",
+        "rotate": 5,
+    },
+    {
+        "name": "AppleInsider",
+        "rss_url": "http://ai.libsyn.com/rss",
+        "folder": "/home/hobocta/podcasts/appleinsider",
+        "rotate": 5,
+    },
+    {
+        "name": "Инфа 100%",
+        "rss_url": "http://feeds.feedburner.com/inf100/WmpG",
+        "folder": "/home/hobocta/podcasts/inf100",
+        "rotate": 5,
+    },
+    {
+        "name": "IT мысли",
+        "rss_url": "http://it-thoughts.ru/feed",
+        "folder": "/home/hobocta/podcasts/it-thoughts",
+        "rotate": 5,
+    },
 ]
 
 #
