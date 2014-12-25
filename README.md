@@ -12,7 +12,7 @@ download = [
     {
         "name": "Радио-Т",
         "rss_url": "http://feeds.rucast.net/radio-t",
-        "folder": "~/podcasts/radio-t",
+        "folder": "/home/btsync/podcasts/radio-t",
         "rotate": 5,
     },
 ]
