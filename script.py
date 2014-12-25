@@ -36,12 +36,12 @@ download = [
         "folder": "/home/btsync/podcasts/rubynoname",
         "rotate": 3,
     },
-    {
-        "name": "DevZen",
-        "rss_url": "http://devzen.ru/feed/",
-        "folder": "/home/btsync/podcasts/devzen",
-        "rotate": 3,
-    },
+    #{
+    #    "name": "DevZen",
+    #    "rss_url": "http://devzen.ru/feed/",
+    #    "folder": "/home/btsync/podcasts/devzen",
+    #    "rotate": 3,
+    #},
     {
         "name": "Разбор полётов",
         "rss_url": "http://feeds.feedburner.com/razbor-podcast",
