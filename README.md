@@ -31,7 +31,7 @@ download = [
 
 Запускать на линуксе можно через crontab, например так:
 ```
-*/5 * * * * /usr/local/bin/python3.3 ~/podcast-downloader/script.py hide 2>&1 >/dev/null
+*/5 * * * * python3 /home/python/podcast-downloader/script.py hide 2>&1 >/dev/null
 ```
 
 Для запуска из под windows имеется файл run.cmd.
