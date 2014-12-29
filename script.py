@@ -18,12 +18,12 @@ download = [
         "folder": "/home/btsync/podcasts/radio-t",
         "rotate": 3,
     },
-    {
-        "name": "Рунетология",
-        "rss_url": "http://runetologia.podfm.ru/rss/rss.xml",
-        "folder": "/home/btsync/podcasts/runetologia",
-        "rotate": 3,
-    },
+    #{
+    #    "name": "Рунетология",
+    #    "rss_url": "http://runetologia.podfm.ru/rss/rss.xml",
+    #    "folder": "/home/btsync/podcasts/runetologia",
+    #    "rotate": 3,
+    #},
     {
         "name": "Сделайте мне красиво!",
         "rss_url": "http://makeitsexy.rpod.ru/rss_110y_1dfe.xml",
