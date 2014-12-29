@@ -18,12 +18,12 @@ download = [
         "folder": "/home/btsync/podcasts/radio-t",
         "rotate": 3,
     },
-    #{
-    #    "name": "Рунетология",
-    #    "rss_url": "http://runetologia.podfm.ru/rss/rss.xml",
-    #    "folder": "/home/btsync/podcasts/runetologia",
-    #    "rotate": 3,
-    #},
+    {
+       "name": "Рунетология",
+       "rss_url": "http://runetologia.podfm.ru/rss/rss.xml",
+       "folder": "/home/btsync/podcasts/runetologia",
+       "rotate": 3,
+    },
     {
         "name": "Сделайте мне красиво!",
         "rss_url": "http://makeitsexy.rpod.ru/rss_110y_1dfe.xml",
@@ -36,12 +36,6 @@ download = [
         "folder": "/home/btsync/podcasts/rubynoname",
         "rotate": 3,
     },
-    #{
-    #    "name": "DevZen",
-    #    "rss_url": "http://devzen.ru/feed/",
-    #    "folder": "/home/btsync/podcasts/devzen",
-    #    "rotate": 3,
-    #},
     {
         "name": "Разбор полётов",
         "rss_url": "http://feeds.feedburner.com/razbor-podcast",
@@ -71,6 +65,12 @@ download = [
         "rss_url": "http://it-thoughts.ru/feed",
         "folder": "/home/btsync/podcasts/it-thoughts",
         "rotate": 3,
+    },
+    {
+       "name": "DevZen",
+       "rss_url": "http://devzen.ru/feed/",
+       "folder": "/home/btsync/podcasts/devzen",
+       "rotate": 3,
     },
 ]
 
@@ -123,7 +123,17 @@ def get_mp3_url_from_rss(rss_url):
     if hide is False:
         print("\t" + "Получили rss ленту")
 
-    feedMp3 = feed.entries[0].enclosures[0].href
+    feedMp3 = False
+
+    if (
+        type(feed) is feedparser.FeedParserDict
+        and type(feed.entries) is list
+        and type(feed.entries[0]) is feedparser.FeedParserDict
+        and type(feed.entries[0].enclosures) is list
+        and  type(feed.entries[0].enclosures[0]) is feedparser.FeedParserDict
+        and type(feed.entries[0].enclosures[0].href) is str
+    ):
+        feedMp3 = feed.entries[0].enclosures[0].href
 
     return feedMp3
 
