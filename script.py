@@ -123,19 +123,21 @@ def get_mp3_url_from_rss(rss_url):
     if hide is False:
         print("\t" + "Получили rss ленту")
 
-    feedMp3 = False
+    mp3_url = False
 
     if (
         type(feed) is feedparser.FeedParserDict
         and type(feed.entries) is list
+        and len(feed.entries)
         and type(feed.entries[0]) is feedparser.FeedParserDict
         and type(feed.entries[0].enclosures) is list
-        and  type(feed.entries[0].enclosures[0]) is feedparser.FeedParserDict
+        and len(feed.entries[0].enclosures)
+        and type(feed.entries[0].enclosures[0]) is feedparser.FeedParserDict
         and type(feed.entries[0].enclosures[0].href) is str
     ):
-        feedMp3 = feed.entries[0].enclosures[0].href
+        mp3_url = feed.entries[0].enclosures[0].href
 
-    return feedMp3
+    return mp3_url
 
 
 def get_filename_from_url(mp3_url):
@@ -194,7 +196,8 @@ def podcast_process(podcast):
         return
 
     if hide is False:
-        print("\t" + "Нашли в rss линк на mp3 крайнего подкаста")
+        print("\t" + "Нашли в rss линк на mp3 крайнего подкаста:")
+        print("\t" + mp3_url)
 
     # Получаем имя файла
     file_name = get_filename_from_url(mp3_url)
