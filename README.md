@@ -5,6 +5,10 @@ podcast-downloader
 
 --
 
+Для работы требуется установленный пакет [feedparser](https://pypi.python.org/pypi/feedparser)
+
+--
+
 На вход принимает список подкастов в следующем формате:
 
 ```
