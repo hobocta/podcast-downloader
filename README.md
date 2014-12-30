@@ -13,7 +13,7 @@ download = [
         "name": "Радио-Т",
         "rss_url": "http://feeds.rucast.net/radio-t",
         "folder": "/home/btsync/podcasts/radio-t",
-        "rotate": 5,
+        "rotate": 3,
         "email": "contact@site-home.ru",
     },
 ]
