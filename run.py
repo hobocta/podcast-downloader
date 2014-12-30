@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Подключаем функции
-from pd import podcast_each
+from podcastdownloader import podcast_each
 
 # Подключаем настройки
 from config import download

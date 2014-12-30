@@ -14,6 +14,7 @@ download = [
         "rss_url": "http://feeds.rucast.net/radio-t",
         "folder": "/home/btsync/podcasts/radio-t",
         "rotate": 5,
+        "email": "contact@site-home.ru",
     },
 ]
 ```
@@ -21,7 +22,8 @@ download = [
 * name — имя подкаста
 * rss_url — rss лента из которой можно взять mp3'шки
 * folder — полный путь к папке куда будем складывать файлы, без слеша вконце
-* rotate — сколько крайних подкастов хранить, желательно больше нуля :)
+* rotate — сколько крайних подкастов хранить
+* email — куда отправить уведомление о новом подкасте, не обязательно к заполнения
 
 --
 
@@ -29,9 +31,9 @@ download = [
 
 --
 
-Запускать на линуксе можно через crontab, например так:
+Запускать на linux можно через crontab, например так:
 ```
-*/10 * * * * python3 /home/python/podcast-downloader/script.py hide
+*/10 * * * * python3 /home/python/podcast-downloader/run.py hide
 ```
 
 Для запуска из под windows имеется файл run.cmd.
@@ -39,4 +41,9 @@ download = [
 --
 
 Выполнение скрипта в консоли выглядит примерно так:
-![Скриншот bash](https://dl.dropboxusercontent.com/u/15126083/ShareX/2014/12/2014-12-30_11-04-44.png)
+![Скриншот bash](https://dl.dropboxusercontent.com/u/15126083/ShareX/2014/12/2014-12-30_21-24-43.png)
+
+--
+
+Уведомление, приходящее на почту, выглядит так:
+![Скриншот письма](https://dl.dropboxusercontent.com/u/15126083/ShareX/2014/12/2014-12-30_21-25-52.png)

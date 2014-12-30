@@ -10,6 +10,8 @@ import re
 import os
 import feedparser
 import urllib.request
+import smtplib
+from email.mime.text import MIMEText
 
 #
 # Подключаем классы
@@ -104,6 +106,16 @@ def podcast_save(mp3_url, file_path):
     return result
 
 
+def email_send(podcast, file_name):
+    msg = MIMEText(file_name)
+    msg['Subject'] = "Новый выпуск подкаста " + podcast["name"]
+    msg['From'] = podcast["email"]
+    msg['To'] = podcast["email"]
+    s = smtplib.SMTP('localhost')
+    s.send_message(msg)
+    s.quit()
+
+
 def podcast_process(podcast):
 
     if hide is False:
@@ -151,6 +163,11 @@ def podcast_process(podcast):
     if hide is False:
         print("\t" + "Успешно скачали новый подкаст")
 
+    # Отправляем уведомление на почту
+    if "email" in podcast and len(podcast["email"]):
+        email_send(podcast, file_name)
+        if hide is False:
+            print("\t" + 'Уведомление отправлено на ' + podcast["email"])
 
 #
 # Определяем функции
