@@ -156,18 +156,12 @@ def get_mp3_url_from_rss(feed, podcast, item):
         and len(feed.entries) > 0
     ):
         if (
-            type(feed.entries[item]) is feedparser.FeedParserDict
-            and type(feed.entries[item].enclosures) is list
-            and len(feed.entries[item].enclosures)
-            and type(feed.entries[item].enclosures[0]) is feedparser.FeedParserDict
+            len(feed.entries[item].enclosures)
             and type(feed.entries[item].enclosures[0].href) is str
         ):
             pass
         elif (
-            type(feed.entries[item + 1]) is feedparser.FeedParserDict
-            and type(feed.entries[item + 1].enclosures) is list
-            and len(feed.entries[item + 1].enclosures)
-            and type(feed.entries[item + 1].enclosures[0]) is feedparser.FeedParserDict
+            len(feed.entries[item + 1].enclosures)
             and type(feed.entries[item + 1].enclosures[0].href) is str
         ):
             item = item + 1
