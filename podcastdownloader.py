@@ -91,7 +91,7 @@ def item_process(feed, podcast, item):
     # отступ
     if hide is False:
         print("        ", end = "")
-        print("#" + str(item + 1) + ". ", end = "")
+        print(str(item + 1) + "-й с конца. ", end = "")
 
     mp3_url = get_mp3_url_from_rss(feed, podcast, item)
 

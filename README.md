@@ -45,9 +45,9 @@ download = [
 --
 
 Выполнение скрипта в консоли выглядит примерно так:
-![Скриншот bash](https://dl.dropboxusercontent.com/u/15126083/ShareX/2015/01/2015-01-07_22-37-30.png)
+![Скриншот bash](https://dl.dropboxusercontent.com/u/15126083/ShareX/2015/01/2015-01-07_23-14-45.png)
 
 --
 
 Уведомление, приходящее на почту, выглядит так:
-![Скриншот письма](https://dl.dropboxusercontent.com/u/15126083/ShareX/2014/12/2014-12-30_21-25-52.png)
+![Скриншот письма](https://dl.dropboxusercontent.com/u/15126083/ShareX/2015/01/2015-01-07_23-15-55.png)
