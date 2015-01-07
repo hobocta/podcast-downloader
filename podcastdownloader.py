@@ -42,6 +42,7 @@ hide = is_hide()
 
 # перебираем подкасты из файла config.py
 def podcast_each(download):
+
     for podcast in download:
         podcast_process(podcast)
 
@@ -77,6 +78,7 @@ def podcast_process(podcast):
 
 # получаем rss feed
 def get_feed(rss_url):
+
     feed = feedparser.parse(rss_url)
 
     if len(feed.entries) < 1:
@@ -145,6 +147,7 @@ def item_process(feed, podcast, item):
 
 # получаем ссылку на mp3 из выпуска
 def get_mp3_url_from_rss(feed, podcast, item):
+
     mp3_url = False
 
     if (
@@ -194,6 +197,7 @@ def podcast_save(mp3_url, file_path):
 
 # удаляем старые выпуски с диска
 def delete_old_podcasts(folder, rotate):
+
     stored_files = os.listdir(folder)
     stored_files.sort()
     stored_files_tmp = []
@@ -204,6 +208,7 @@ def delete_old_podcasts(folder, rotate):
             stored_files_tmp.append(stored_files[i])
     stored_files = stored_files_tmp
     stored_files_tmp = None
+
     while (len(stored_files) > rotate):
         oldest_file = folder + "/" + stored_files[0]
         os.path.exists(oldest_file) and os.remove(oldest_file)
@@ -212,6 +217,7 @@ def delete_old_podcasts(folder, rotate):
 
 # отравляем уведомление на почту
 def email_send(podcast, file_name):
+
     msg = MIMEText(file_name)
     msg['Subject'] = "Новый выпуск подкаста " + podcast["name"]
     msg['From'] = podcast["email"]
