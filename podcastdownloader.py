@@ -8,10 +8,11 @@
 import sys
 import re
 import os
-import feedparser
 import urllib.request
 import smtplib
 from email.mime.text import MIMEText
+
+import feedparser
 
 #
 # Подключаем классы
@@ -39,56 +40,141 @@ hide = is_hide()
 # Определяем функции
 #
 
-def get_mp3_url_from_rss(rss_url):
-    # Парсим rss
-    feed = feedparser.parse(rss_url)
-
-    if hide is False:
-        print("\t" + "Получили rss ленту")
-
-    mp3_url = False
-
-    if (
-        type(feed) is feedparser.FeedParserDict
-        and type(feed.entries) is list
-        and len(feed.entries)
-        and type(feed.entries[0]) is feedparser.FeedParserDict
-        and type(feed.entries[0].enclosures) is list
-        and len(feed.entries[0].enclosures)
-        and type(feed.entries[0].enclosures[0]) is feedparser.FeedParserDict
-        and type(feed.entries[0].enclosures[0].href) is str
-    ):
-        mp3_url = feed.entries[0].enclosures[0].href
-
-    return mp3_url
-
-
-def get_filename_from_url(mp3_url):
-    return re.search("[0-9a-zA-Z\.\-_]+\.mp3", mp3_url).group()
-
-
-def delete_old_podcasts(folder, rotate):
-    stored_files = os.listdir(folder)
-    stored_files.sort()
-    stored_files_tmp = []
-
-    # Пропускаем файлы с точкой в начале
-    for i in range(len(stored_files)):
-        if (re.match("^\.", stored_files[i]) is None):
-            stored_files_tmp.append(stored_files[i])
-    stored_files = stored_files_tmp
-    stored_files_tmp = None
-    while (len(stored_files) > rotate):
-        oldest_file = folder + "/" + stored_files[0]
-        os.path.exists(oldest_file) and os.remove(oldest_file)
-        stored_files.remove(stored_files[0])
-
-
+# перебираем подкасты из файла config.py
 def podcast_each(download):
     for podcast in download:
         podcast_process(podcast)
 
 
+# обработка отдельного подкаста
+def podcast_process(podcast):
+
+    if hide is False:
+        print("\n" + 'Проверяем rss подкаста "' + podcast["name"] + '":')
+
+    # Парсим rss
+    feed = get_feed(podcast["rss_url"])
+    if feed is False:
+        print("Can't get rss: " + podcast["rss_url"], file = sys.stderr)
+        return
+
+    if hide is False:
+        print("    ", end = "")
+        print("RSS лента получена. Обрабатываем выпуски:")
+
+    if "items" not in podcast.keys():
+        podcast["items"] = 0
+
+    if podcast["items"]:
+        range_val = podcast["items"]
+    else:
+        range_val = 1;
+
+    for item in range(0, range_val):
+        item_process(feed, podcast, item)
+        pass
+
+
+# получаем rss feed
+def get_feed(rss_url):
+    feed = feedparser.parse(rss_url)
+
+    if len(feed.entries) < 1:
+        feed = False
+
+    return feed
+
+
+# обработка отдельного выпуска
+def item_process(feed, podcast, item):
+
+    # отступ
+    if hide is False:
+        print("        ", end = "")
+        print("#" + str(item + 1) + ". ", end = "")
+
+    mp3_url = get_mp3_url_from_rss(feed, podcast, item)
+
+    if mp3_url is False or len(mp3_url) < 24:
+        print("Can't get mp3 from rss: " + podcast["rss_url"], file = sys.stderr)
+        return
+
+    if hide is False:
+        print("Ссылка на mp3 есть. ", end = "")
+
+    # Получаем имя файла
+    file_name = re.search("[0-9a-zA-Z\.\-_]+\.mp3", mp3_url).group()
+
+    # Полный путь сохранения файла
+    file_path = podcast["folder"] + "/" + file_name
+
+    # Проверяем скачан ли уже этот подкаст, если его длина 0 - удаляем
+    if os.path.isfile(file_path) and os.stat(file_path).st_size == 0:
+        os.remove(file_path)
+
+    if os.path.isfile(file_path):
+        if hide is False:
+            print("У нас такой уже есть.")
+        return
+
+    if hide is False:
+        print("Скачиваем... ", end = "")
+
+    is_saved = podcast_save(mp3_url, file_path)
+
+    if is_saved is False:
+        if hide is False:
+            print("ошибка.")
+        return
+
+    # Если файлов больше определённого количества - старые удаляем
+    if podcast["items"]:
+        delete_old_podcasts(podcast["folder"], podcast["items"])
+
+    if hide is False:
+        print("скачали! ", end = "")
+
+    # Отправляем уведомление на почту
+    if "email" in podcast and len(podcast["email"]):
+        email_send(podcast, file_name)
+        if hide is False:
+            print("Email отправлен.", end = "")
+
+    print()
+
+
+# получаем ссылку на mp3 из выпуска
+def get_mp3_url_from_rss(feed, podcast, item):
+    mp3_url = False
+
+    if (
+        type(feed) is feedparser.FeedParserDict
+        and type(feed.entries) is list
+        and len(feed.entries) > 0
+    ):
+        if (
+            type(feed.entries[item]) is feedparser.FeedParserDict
+            and type(feed.entries[item].enclosures) is list
+            and len(feed.entries[item].enclosures)
+            and type(feed.entries[item].enclosures[0]) is feedparser.FeedParserDict
+            and type(feed.entries[item].enclosures[0].href) is str
+        ):
+            pass
+        elif (
+            type(feed.entries[item + 1]) is feedparser.FeedParserDict
+            and type(feed.entries[item + 1].enclosures) is list
+            and len(feed.entries[item + 1].enclosures)
+            and type(feed.entries[item + 1].enclosures[0]) is feedparser.FeedParserDict
+            and type(feed.entries[item + 1].enclosures[0].href) is str
+        ):
+            item = item + 1
+
+        mp3_url = feed.entries[item].enclosures[0].href
+
+    return mp3_url
+
+
+# скачиваем mp3
 def podcast_save(mp3_url, file_path):
 
     # Скачиваем mp3 в нужное место
@@ -106,6 +192,25 @@ def podcast_save(mp3_url, file_path):
     return result
 
 
+# удаляем старые выпуски с диска
+def delete_old_podcasts(folder, rotate):
+    stored_files = os.listdir(folder)
+    stored_files.sort()
+    stored_files_tmp = []
+
+    # Пропускаем файлы с точкой в начале
+    for i in range(len(stored_files)):
+        if (re.match("^\.", stored_files[i]) is None):
+            stored_files_tmp.append(stored_files[i])
+    stored_files = stored_files_tmp
+    stored_files_tmp = None
+    while (len(stored_files) > rotate):
+        oldest_file = folder + "/" + stored_files[0]
+        os.path.exists(oldest_file) and os.remove(oldest_file)
+        stored_files.remove(stored_files[0])
+
+
+# отравляем уведомление на почту
 def email_send(podcast, file_name):
     msg = MIMEText(file_name)
     msg['Subject'] = "Новый выпуск подкаста " + podcast["name"]
@@ -115,59 +220,6 @@ def email_send(podcast, file_name):
     s.send_message(msg)
     s.quit()
 
-
-def podcast_process(podcast):
-
-    if hide is False:
-        print("\n" + 'Обрабатываем подкаст "' + podcast["name"] + '":')
-
-    mp3_url = get_mp3_url_from_rss(podcast["rss_url"])
-
-    if mp3_url is False or len(mp3_url) < 24:
-        if hide is False:
-            print("\t" + "Некорректная ссылка на mp3: " + str(mp3_url))
-        return
-
-    if hide is False:
-        print("\t" + "Нашли в rss линк на mp3 крайнего подкаста:")
-        print("\t" + mp3_url)
-
-    # Получаем имя файла
-    file_name = get_filename_from_url(mp3_url)
-
-    # Полный путь сохранения файла
-    file_path = podcast["folder"] + "/" + file_name
-
-    # Проверяем скачан ли уже этот подкаст, если его длина 0 - удаляем
-    if os.path.isfile(file_path) and os.stat(file_path).st_size == 0:
-        os.remove(file_path)
-
-    if os.path.isfile(file_path):
-        if hide is False:
-            print("\t" + "У нас такой уже есть")
-        return
-
-    if hide is False:
-        print("\t" + "У нас такого ещё нет!")
-
-    is_saved = podcast_save(mp3_url, file_path)
-
-    if is_saved is False:
-        if hide is False:
-            print("\t" + "Не удалось скачать и записать файл")
-        return
-
-    # Если файлов больше определённого количества - старые удаляем
-    delete_old_podcasts(podcast["folder"], podcast["rotate"])
-
-    if hide is False:
-        print("\t" + "Успешно скачали новый подкаст")
-
-    # Отправляем уведомление на почту
-    if "email" in podcast and len(podcast["email"]):
-        email_send(podcast, file_name)
-        if hide is False:
-            print("\t" + 'Уведомление отправлено на ' + podcast["email"])
 
 #
 # Определяем функции
