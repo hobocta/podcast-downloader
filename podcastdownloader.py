@@ -142,7 +142,8 @@ def item_process(feed, podcast, item):
         if hide is False:
             print("Email отправлен.", end = "")
 
-    print()
+    if hide is False:
+        print()
 
 
 # получаем ссылку на mp3 из выпуска
