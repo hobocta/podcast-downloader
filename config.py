@@ -17,6 +17,13 @@ download = [
         "email": "contact@site-home.ru",
     },
     {
+        "name": "Пираты-РТ",
+        "rss_url": "http://feeds.feedburner.com/pirate-radio-t",
+        "folder": "/home/btsync/podcasts/pirates",
+        "items": 3,
+        "email": "contact@site-home.ru",
+    },
+    {
        "name": "Рунетология",
        "rss_url": "http://runetologia.podfm.ru/rss/rss.xml",
        "folder": "/home/btsync/podcasts/runetologia",
