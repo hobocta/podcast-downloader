@@ -8,6 +8,7 @@
 import sys
 import re
 import os
+import time
 import urllib.request
 import smtplib
 from email.mime.text import MIMEText
@@ -53,8 +54,16 @@ def podcast_process(podcast):
     if hide is False:
         print("\n" + 'Проверяем rss подкаста "' + podcast["name"] + '":')
 
-    # Парсим rss
-    feed = get_feed(podcast["rss_url"])
+    # Парсим rss (с трёх попыток, ленты иногда бывали временно недоступны)
+    try_count = 0
+    while try_count < 3:
+        feed = get_feed(podcast["rss_url"])
+        if feed is False:
+            try_count += 1
+            time.sleep(try_count * 3)
+        else:
+            break
+
     if feed is False:
         print("Can't get rss: " + podcast["rss_url"], file = sys.stderr)
         return
