@@ -55,12 +55,17 @@ def podcast_process(podcast):
         print("\n" + 'Проверяем rss подкаста "' + podcast["name"] + '":')
 
     # Парсим rss (с трёх попыток, ленты иногда бывали временно недоступны)
-    try_count = 0
-    while try_count < 3:
+    try_count = 1
+    try_counts = 3
+    while try_count <= try_counts:
         feed = get_feed(podcast["rss_url"])
         if feed is False:
-            try_count += 1
+
+            # после тестирования этого сообщения строки 63-66 можно будет удалить
+            print("Get rss: " + try_count + " (of " + try_counts + ") attempt failed", file = sys.stderr)
+
             time.sleep(try_count * 3)
+            try_count += 1
         else:
             break
 
