@@ -62,7 +62,11 @@ def podcast_process(podcast):
         if feed is False:
 
             # после тестирования этого сообщения строки 63-66 можно будет удалить
-            print("Get rss: " + str(try_count) + " (of " + str(try_counts) + ") attempt failed", file = sys.stderr)
+            print(
+                "Get rss " + podcast["rss_url"] +
+                ": " + str(try_count) + " (of " + str(try_counts) + ") attempt failed",
+                file = sys.stderr
+            )
 
             time.sleep(try_count * 3)
             try_count += 1
