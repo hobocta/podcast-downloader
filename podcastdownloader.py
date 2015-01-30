@@ -54,20 +54,17 @@ def podcast_process(podcast):
     if hide is False:
         print("\n" + 'Проверяем rss подкаста "' + podcast["name"] + '":')
 
-    # Парсим rss (с трёх попыток, ленты иногда бывали временно недоступны)
+    # Парсим rss (с трёх попыток, т. к. ленты иногда бывали временно недоступны)
     try_count = 1
     try_counts = 3
     while try_count <= try_counts:
         feed = get_feed(podcast["rss_url"])
         if feed is False:
-
-            # после тестирования этого сообщения строки 63-66 можно будет удалить
-            print(
-                "Get rss " + podcast["rss_url"] +
-                ": " + str(try_count) + " (of " + str(try_counts) + ") attempt failed",
-                file = sys.stderr
-            )
-
+            if hide is False:
+                print(
+                    "Get rss " + podcast["rss_url"] +
+                    ": " + str(try_count) + " (of " + str(try_counts) + ") attempt failed"
+                )
             time.sleep(try_count * 3)
             try_count += 1
         else:
