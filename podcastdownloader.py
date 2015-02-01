@@ -208,16 +208,19 @@ def podcast_save(mp3_url, file_path):
 # удаляем старые выпуски с диска
 def delete_old_podcasts(folder, rotate):
 
+    os.chdir(folder)
     stored_files = os.listdir(folder)
-    stored_files.sort()
     stored_files_tmp = []
 
-    # Пропускаем файлы с точкой в начале
+    # пропускаем файлы с точкой в начале
     for i in range(len(stored_files)):
         if (re.match("^\.", stored_files[i]) is None):
             stored_files_tmp.append(stored_files[i])
     stored_files = stored_files_tmp
     stored_files_tmp = None
+
+    # сортируем по дате
+    stored_files.sort(key=lambda x: os.path.getmtime(x))
 
     while (len(stored_files) > rotate):
         oldest_file = folder + "/" + stored_files[0]
