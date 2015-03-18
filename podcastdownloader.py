@@ -59,19 +59,23 @@ def podcast_process(podcast):
     try_counts = 3
     while try_count <= try_counts:
         feed = get_feed(podcast["rss_url"])
-        if feed is False:
+        if len(feed.entries) < 1:
             if hide is False:
                 print(
                     "Get rss " + podcast["rss_url"] +
                     ": " + str(try_count) + " (of " + str(try_counts) + ") attempt failed"
                 )
-            time.sleep(try_count * 3)
+            if try_count < try_counts:
+                time.sleep(try_count * 5)
             try_count += 1
         else:
             break
 
-    if feed is False:
+    if len(feed.entries) < 1:
+        # Выводим ошибку
         print("Can't get rss: " + podcast["rss_url"], file = sys.stderr)
+        # Выводим подробности неудачи
+        print(feed, file = sys.stderr)
         return
 
     if hide is False:
@@ -93,12 +97,7 @@ def podcast_process(podcast):
 
 # получаем rss feed
 def get_feed(rss_url):
-
     feed = feedparser.parse(rss_url)
-
-    if len(feed.entries) < 1:
-        feed = False
-
     return feed
 
 
