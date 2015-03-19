@@ -76,12 +76,13 @@ def podcast_process(podcast):
         # Выводим ошибку
         print(
             datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S") + ": " +
-            "Can't get rss: " + podcast["rss_url"], file = sys.stderr
+            "Can't get rss: " + podcast["rss_url"],
+            file = sys.stderr
         )
         # Выводим подробности неудачи
         print(
-            datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S") + ": " +
-            feed, file = sys.stderr
+            datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S") + ": " + feed,
+            file = sys.stderr
         )
         return
 
@@ -115,7 +116,8 @@ def item_process(feed, podcast, item):
     if mp3_url is False or len(mp3_url) < 24:
         print(
             datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S") + ": " +
-            "Can't get mp3 from rss: " + podcast["rss_url"], file = sys.stderr
+            "Can't get mp3 from rss: " + podcast["rss_url"],
+            file = sys.stderr
         )
         return
 
