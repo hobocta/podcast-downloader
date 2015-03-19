@@ -9,6 +9,7 @@ import sys
 import re
 import os
 import time
+import datetime
 import urllib.request
 import smtplib
 from email.mime.text import MIMEText
@@ -58,7 +59,7 @@ def podcast_process(podcast):
     try_count = 1
     try_counts = 3
     while try_count <= try_counts:
-        feed = get_feed(podcast["rss_url"])
+        feed = feedparser.parse(podcast["rss_url"])
         if len(feed.entries) < 1:
             if hide is False:
                 print(
@@ -66,16 +67,22 @@ def podcast_process(podcast):
                     ": " + str(try_count) + " (of " + str(try_counts) + ") attempt failed"
                 )
             if try_count < try_counts:
-                time.sleep(try_count * 5)
+                time.sleep(try_count * 30)
             try_count += 1
         else:
             break
 
     if len(feed.entries) < 1:
         # Выводим ошибку
-        print("Can't get rss: " + podcast["rss_url"], file = sys.stderr)
+        print(
+            datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S") + ": " +
+            "Can't get rss: " + podcast["rss_url"], file = sys.stderr
+        )
         # Выводим подробности неудачи
-        print(feed, file = sys.stderr)
+        print(
+            datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S") + ": " +
+            feed, file = sys.stderr
+        )
         return
 
     if hide is False:
@@ -95,12 +102,6 @@ def podcast_process(podcast):
         pass
 
 
-# получаем rss feed
-def get_feed(rss_url):
-    feed = feedparser.parse(rss_url)
-    return feed
-
-
 # обработка отдельного выпуска
 def item_process(feed, podcast, item):
 
@@ -112,7 +113,10 @@ def item_process(feed, podcast, item):
     mp3_url = get_mp3_url_from_rss(feed, podcast, item)
 
     if mp3_url is False or len(mp3_url) < 24:
-        print("Can't get mp3 from rss: " + podcast["rss_url"], file = sys.stderr)
+        print(
+            datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S") + ": " +
+            "Can't get mp3 from rss: " + podcast["rss_url"], file = sys.stderr
+        )
         return
 
     if hide is False:
