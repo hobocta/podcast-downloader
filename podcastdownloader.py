@@ -234,7 +234,7 @@ def delete_old_podcasts(folder, rotate):
 def email_send(podcast, file_name):
 
     msg = MIMEText(file_name)
-    msg['Subject'] = "Новый выпуск подкаста " + podcast["name"]
+    msg['Subject'] = "Новый выпуск подкаста " + podcast["name"] + ": " + file_name
     msg['From'] = podcast["email"]
     msg['To'] = podcast["email"]
     s = smtplib.SMTP('localhost')
