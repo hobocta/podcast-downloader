@@ -80,10 +80,7 @@ def podcast_process(podcast):
             file = sys.stderr
         )
         # Выводим подробности неудачи
-        print(
-            datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S") + ": " + feed,
-            file = sys.stderr
-        )
+        print(feed, file = sys.stderr)
         return
 
     if hide is False:
