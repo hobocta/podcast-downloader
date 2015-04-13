@@ -76,11 +76,10 @@ def podcast_process(podcast):
         # Выводим ошибку
         print(
             datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S") + ": " +
-            "Can't get rss: " + podcast["rss_url"],
-            file = sys.stderr
+            "Can't get rss: " + podcast["rss_url"]
         )
         # Выводим подробности неудачи
-        print(feed, file = sys.stderr)
+        print(feed)
         return
 
     if hide is False:
