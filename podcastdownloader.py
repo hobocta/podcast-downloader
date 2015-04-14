@@ -73,13 +73,14 @@ def podcast_process(podcast):
             break
 
     if len(feed.entries) < 1:
-        # Выводим ошибку
-        print(
-            datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S") + ": " +
-            "Can't get rss: " + podcast["rss_url"]
-        )
-        # Выводим подробности неудачи
-        print(feed)
+        if hide is False:
+            # Выводим ошибку
+            print(
+                datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S") + ": " +
+                "Can't get rss: " + podcast["rss_url"]
+            )
+            # Выводим подробности неудачи
+            print(feed)
         return
 
     if hide is False:
