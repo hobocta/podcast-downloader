@@ -79,4 +79,11 @@ download = [
        "items": 3,
        "email": "contact@site-home.ru",
     },
+    {
+       "name": "keddroCast",
+       "rss_url": "http://keddr.com/category/keddrocast/feed/",
+       "folder": "/home/btsync/podcasts/keddrocast",
+       "items": 3,
+       "email": "contact@site-home.ru",
+    },
 ]
