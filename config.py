@@ -24,13 +24,6 @@ download = [
         "email": "contact@site-home.ru",
     },
     {
-       "name": "Рунетология",
-       "rss_url": "http://runetologia.podfm.ru/rss/rss.xml",
-       "folder": "/home/btsync/podcasts/runetologia",
-       "items": 3,
-       "email": "contact@site-home.ru",
-    },
-    {
         "name": "RubyNoName",
         "rss_url": "http://feeds.feedburner.com/rubynoname-standalone",
         "folder": "/home/btsync/podcasts/rubynoname",
