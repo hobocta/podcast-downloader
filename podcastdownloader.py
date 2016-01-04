@@ -122,7 +122,7 @@ def item_process(feed, podcast, item):
         print("Ссылка на mp3 есть. ", end = "")
 
     # Получаем имя файла
-    file_name = re.search("[0-9a-zA-Z\.\-_]+\.mp3", mp3_url).group()
+    file_name = re.search("[0-9a-zA-Z\.\-_]+\.mp[34]", mp3_url).group()
 
     # Полный путь сохранения файла
     file_path = podcast["folder"] + "/" + file_name
