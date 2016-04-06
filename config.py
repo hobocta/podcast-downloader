@@ -59,23 +59,9 @@ download = [
         "email": "contact@site-home.ru",
     },
     {
-        "name": "IT мысли",
-        "rss_url": "http://it-thoughts.ru/feed",
-        "folder": "/home/btsync/podcasts/it-thoughts",
-        "items": 3,
-        "email": "contact@site-home.ru",
-    },
-    {
        "name": "DevZen",
        "rss_url": "http://devzen.ru/feed/",
        "folder": "/home/btsync/podcasts/devzen",
-       "items": 3,
-       "email": "contact@site-home.ru",
-    },
-    {
-       "name": "keddroCast",
-       "rss_url": "http://keddr.com/category/keddrocast/feed/",
-       "folder": "/home/btsync/podcasts/keddrocast",
        "items": 3,
        "email": "contact@site-home.ru",
     },
