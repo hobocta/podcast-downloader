@@ -65,4 +65,18 @@ download = [
        "items": 3,
        "email": "contact@site-home.ru",
     },
+    {
+       "name": "Web standards",
+       "rss_url": "http://feeds.soundcloud.com/users/soundcloud:users:202737209/sounds.rss",
+       "folder": "/home/btsync/podcasts/web-standards",
+       "items": 3,
+       "email": "contact@site-home.ru",
+    },
+    {
+       "name": "Frontflip",
+       "rss_url": "http://frontflip.me/podcast.xml",
+       "folder": "/home/btsync/podcasts/frontflip",
+       "items": 3,
+       "email": "contact@site-home.ru",
+    },
 ]
