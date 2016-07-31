@@ -79,11 +79,4 @@ download = [
        "items": 3,
        "email": "contact@site-home.ru",
     },
-    {
-       "name": "Берись и делай",
-       "rss_url": "http://sharkov.podfm.ru/rss/rss.xml",
-       "folder": "/home/ubuntu/podcasts/sharkov",
-       "items": 3,
-       "email": "contact@site-home.ru",
-    },
 ]
