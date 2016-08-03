@@ -1,67 +1,38 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-###############################################################################
-# Подключаем классы
-#
-
 import sys
 import re
 import os
 import time
 import datetime
 import urllib.request
-import smtplib
+from random import shuffle
+from smtplib import SMTP
 from email.mime.text import MIMEText
-
 import feedparser
 
-#
-# Подключаем классы
-###############################################################################
+
+def process_podcasts(podcasts):
+
+    shuffle(podcasts)
+
+    for podcast in podcasts:
+        process_podcast(podcast)
 
 
-###############################################################################
-# Проверки
-#
+def process_podcast(podcast):
 
-def is_hide():
-    return (
-        len(sys.argv) > 1 and sys.argv[1] == "hide"
-    )
+    if is_hide() is False:
+        print("\n" + 'Check rss of podcast "' + podcast["name"] + '":')
 
-# Проверяем скрытно ли был запущен скрипт
-hide = is_hide()
-
-#
-# Проверки
-###############################################################################
-
-
-###############################################################################
-# Определяем функции
-#
-
-# перебираем подкасты из файла config.py
-def podcast_each(download):
-
-    for podcast in download:
-        podcast_process(podcast)
-
-
-# обработка отдельного подкаста
-def podcast_process(podcast):
-
-    if hide is False:
-        print("\n" + 'Проверяем rss подкаста "' + podcast["name"] + '":')
-
-    # Парсим rss (с трёх попыток, т. к. ленты иногда бывали временно недоступны)
+    # parse rss (3 attempts)
     try_count = 1
     try_counts = 3
     while try_count <= try_counts:
         feed = feedparser.parse(podcast["rss_url"])
         if len(feed.entries) < 1:
-            if hide is False:
+            if is_hide() is False:
                 print(
                     "Get rss " + podcast["rss_url"] +
                     ": " + str(try_count) + " (of " + str(try_counts) + ") attempt failed"
@@ -73,19 +44,18 @@ def podcast_process(podcast):
             break
 
     if len(feed.entries) < 1:
-        if hide is False:
-            # Выводим ошибку
+        if is_hide() is False:
             print(
                 datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S") + ": " +
                 "Can't get rss: " + podcast["rss_url"]
             )
-            # Выводим подробности неудачи
+            # view error detail
             print(feed)
         return
 
-    if hide is False:
+    if is_hide() is False:
         print("    ", end = "")
-        print("RSS лента получена. Обрабатываем выпуски:")
+        print("Got RSS. Process series:")
 
     if "items" not in podcast.keys():
         podcast["items"] = 0
@@ -96,74 +66,87 @@ def podcast_process(podcast):
         range_val = 1;
 
     for item in range(0, range_val):
-        item_process(feed, podcast, item)
-        pass
+        process_podcast_serie(feed, podcast, item)
 
 
-# обработка отдельного выпуска
-def item_process(feed, podcast, item):
+def process_podcast_serie(feed, podcast, item):
 
-    # отступ
-    if hide is False:
+    # add indent
+    if is_hide() is False:
         print("        ", end = "")
-        print(str(item + 1) + "-й с конца. ", end = "")
+        print(str(item + 1) + " with the end. ", end = "")
 
     mp3_url = get_mp3_url_from_rss(feed, podcast, item)
 
     if mp3_url is False or len(mp3_url) < 24:
         print(
             datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S") + ": " +
-            "Can't get mp3 from rss: " + podcast["rss_url"],
+            "Unable get mp3 from rss: " + podcast["rss_url"],
             file = sys.stderr
         )
         return
 
-    if hide is False:
-        print("Ссылка на mp3 есть. ", end = "")
+    if is_hide() is False:
+        print("Got file link. ", end = "")
 
-    # Получаем имя файла
     file_name = re.search("[0-9a-zA-Z\.\-_]+\.m[p34a]+", mp3_url).group()
 
-    # Полный путь сохранения файла
-    file_path = podcast["folder"] + "/" + file_name
+    podcast["folder"] = get_podcast_folder_path(podcast["folder"])
 
-    # Проверяем скачан ли уже этот подкаст, если его длина 0 - удаляем
+    file_path = podcast["folder"] + '/' + file_name
+
+    # do we have this file
     if os.path.isfile(file_path) and os.stat(file_path).st_size == 0:
         os.remove(file_path)
 
     if os.path.isfile(file_path):
-        if hide is False:
-            print("У нас такой уже есть.")
+        if is_hide() is False:
+            print("This file already exists.")
         return
 
-    if hide is False:
-        print("Скачиваем... ", end = "")
+    if is_hide() is False:
+        print("Downloading... ", end = "")
 
     is_saved = podcast_save(mp3_url, file_path)
 
     if is_saved is False:
-        if hide is False:
-            print("ошибка.")
+        if is_hide() is False:
+            print("error.")
         return
 
-    # Если файлов больше определённого количества - старые удаляем
+    # remove old series
     if podcast["items"]:
         delete_old_podcasts(podcast["folder"], podcast["items"])
 
-    if hide is False:
-        print("скачали! ", end = "")
+    if is_hide() is False:
+        print("downloaded! ", end = "")
 
-    # Отправляем уведомление на почту
+    # email send
     if "email" in podcast and len(podcast["email"]):
-        email_send(podcast, file_name)
-        if hide is False:
-            print("Email отправлен.", end = "")
+        result = send_email(podcast, file_name)
+        if is_hide() is False:
+            if result:
+                print("Email sent.", end = "")
+            else:
+                print("Unable to send email.", end = "")
 
-    if hide is False:
+    if is_hide() is False:
         print()
 
 
-# получаем ссылку на mp3 из выпуска
+def get_podcast_folder_path(folder):
+
+    if os.path.isabs(folder) is False:
+        folder = os.path.dirname(os.path.abspath(__file__)) + "/" + folder
+        folder = os.path.abspath(folder)
+
+    # create folder if not exists
+    if os.path.exists(folder) is False:
+        os.makedirs(folder)
+
+    return folder
+
+
 def get_mp3_url_from_rss(feed, podcast, item):
 
     mp3_url = False
@@ -189,39 +172,36 @@ def get_mp3_url_from_rss(feed, podcast, item):
     return mp3_url
 
 
-# скачиваем mp3
 def podcast_save(mp3_url, file_path):
 
-    # Скачиваем mp3 в нужное место
+    # download file
     local_file_path, headers = urllib.request.urlretrieve(mp3_url, file_path)
 
-    # Получаем размер скачанного и сохранённого файла
+    # get local file size
     local_file = open(local_file_path)
     local_file.seek(0, os.SEEK_END)
     local_file_size = local_file.tell()
     local_file.close()
 
-    # Размер скачанного файла больше нуля?
     result = local_file_size > 0
 
     return result
 
 
-# удаляем старые выпуски с диска
 def delete_old_podcasts(folder, rotate):
 
     os.chdir(folder)
     stored_files = os.listdir(folder)
     stored_files_tmp = []
 
-    # пропускаем файлы с точкой в начале
+    # skip hidden files
     for i in range(len(stored_files)):
         if (re.match("^\.", stored_files[i]) is None):
             stored_files_tmp.append(stored_files[i])
     stored_files = stored_files_tmp
     stored_files_tmp = None
 
-    # сортируем по дате
+    # sort by date
     stored_files.sort(key=lambda x: os.path.getmtime(x))
 
     while (len(stored_files) > rotate):
@@ -230,18 +210,22 @@ def delete_old_podcasts(folder, rotate):
         stored_files.remove(stored_files[0])
 
 
-# отравляем уведомление на почту
-def email_send(podcast, file_name):
+def send_email(podcast, file_name):
 
     msg = MIMEText(file_name)
-    msg['Subject'] = "Новый выпуск подкаста " + podcast["name"] + ": " + file_name
+
+    msg['Subject'] = "New serie of podcast " + podcast["name"] + ": " + file_name
     msg['From'] = podcast["email"]
     msg['To'] = podcast["email"]
-    s = smtplib.SMTP('localhost')
-    s.send_message(msg)
-    s.quit()
 
+    try:
+        s = SMTP('localhost')
+        s.smtpend_message(msg)
+        s.quit()
 
-#
-# Определяем функции
-###############################################################################
+        return True
+    except:
+        return False
+
+def is_hide():
+    return len(sys.argv) > 1 and sys.argv[1] == "hide"
