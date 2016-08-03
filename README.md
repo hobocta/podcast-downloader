@@ -35,9 +35,9 @@ Use argument "quiet" for hide output to console
 
 --
 
-Run on linux is possible through crontab, for example:
+Example of usage on crontab:
 ```
-*/20 * * * * python3 /home/python/podcast-downloader/run.py quiet
+*/20 * * * * python3 /path-to-folder/podcast-downloader/run.py quiet
 ```
 
-To start on windows run file run.cmd.
+To use on Windows run file run.cmd.
