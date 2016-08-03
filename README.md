@@ -37,7 +37,7 @@ Use argument "quiet" for hide output to console
 
 Run on linux is possible through crontab, for example:
 ```
-*/20 * * * * python3 /home/python/podcast-downloader/run.py hide
+*/20 * * * * python3 /home/python/podcast-downloader/run.py quiet
 ```
 
 To start on windows run file run.cmd.

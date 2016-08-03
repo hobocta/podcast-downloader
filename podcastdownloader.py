@@ -23,7 +23,7 @@ def process_podcasts(podcasts):
 
 def process_podcast(podcast):
 
-    if is_hide() is False:
+    if is_quiet() is False:
         print("\n" + 'Check rss of podcast "' + podcast["name"] + '":')
 
     # parse rss (3 attempts)
@@ -32,7 +32,7 @@ def process_podcast(podcast):
     while try_count <= try_counts:
         feed = feedparser.parse(podcast["rss"])
         if len(feed.entries) < 1:
-            if is_hide() is False:
+            if is_quiet() is False:
                 print(
                     "Get rss " + podcast["rss"] +
                     ": " + str(try_count) + " (of " + str(try_counts) + ") attempt failed"
@@ -44,7 +44,7 @@ def process_podcast(podcast):
             break
 
     if len(feed.entries) < 1:
-        if is_hide() is False:
+        if is_quiet() is False:
             print(
                 datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S") + ": " +
                 "Can't get rss: " + podcast["rss"]
@@ -53,7 +53,7 @@ def process_podcast(podcast):
             print(feed)
         return
 
-    if is_hide() is False:
+    if is_quiet() is False:
         print("    ", end = "")
         print("Got RSS. Process series:")
 
@@ -72,7 +72,7 @@ def process_podcast(podcast):
 def process_podcast_serie(feed, podcast, item):
 
     # add indent
-    if is_hide() is False:
+    if is_quiet() is False:
         print("        ", end = "")
         print(str(item + 1) + " with the end. ", end = "")
 
@@ -86,7 +86,7 @@ def process_podcast_serie(feed, podcast, item):
         )
         return
 
-    if is_hide() is False:
+    if is_quiet() is False:
         print("Got file link. ", end = "")
 
     file_name = re.search("[0-9a-zA-Z\.\-_]+\.m[p34a]+", mp3_url).group()
@@ -100,17 +100,17 @@ def process_podcast_serie(feed, podcast, item):
         os.remove(file_path)
 
     if os.path.isfile(file_path):
-        if is_hide() is False:
+        if is_quiet() is False:
             print("This file already exists.")
         return
 
-    if is_hide() is False:
+    if is_quiet() is False:
         print("Downloading... ", end = "")
 
     is_saved = podcast_save(mp3_url, file_path)
 
     if is_saved is False:
-        if is_hide() is False:
+        if is_quiet() is False:
             print("error.")
         return
 
@@ -118,19 +118,19 @@ def process_podcast_serie(feed, podcast, item):
     if podcast["count"]:
         delete_old_podcasts(podcast["folder"], podcast["count"])
 
-    if is_hide() is False:
+    if is_quiet() is False:
         print("downloaded! ", end = "")
 
     # email send
     if "email" in podcast and len(podcast["email"]):
         result = send_email(podcast, file_name)
-        if is_hide() is False:
+        if is_quiet() is False:
             if result:
                 print("Email sent.", end = "")
             else:
                 print("Unable to send email.", end = "")
 
-    if is_hide() is False:
+    if is_quiet() is False:
         print()
 
 
@@ -227,5 +227,5 @@ def send_email(podcast, file_name):
     except:
         return False
 
-def is_hide():
-    return len(sys.argv) > 1 and sys.argv[1] == "hide"
+def is_quiet():
+    return len(sys.argv) > 1 and sys.argv[1] == "quiet"
