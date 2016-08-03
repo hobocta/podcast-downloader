@@ -30,11 +30,11 @@ def process_podcast(podcast):
     try_count = 1
     try_counts = 3
     while try_count <= try_counts:
-        feed = feedparser.parse(podcast["rss_url"])
+        feed = feedparser.parse(podcast["rss"])
         if len(feed.entries) < 1:
             if is_hide() is False:
                 print(
-                    "Get rss " + podcast["rss_url"] +
+                    "Get rss " + podcast["rss"] +
                     ": " + str(try_count) + " (of " + str(try_counts) + ") attempt failed"
                 )
             if try_count < try_counts:
@@ -47,7 +47,7 @@ def process_podcast(podcast):
         if is_hide() is False:
             print(
                 datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S") + ": " +
-                "Can't get rss: " + podcast["rss_url"]
+                "Can't get rss: " + podcast["rss"]
             )
             # view error detail
             print(feed)
@@ -57,11 +57,11 @@ def process_podcast(podcast):
         print("    ", end = "")
         print("Got RSS. Process series:")
 
-    if "items" not in podcast.keys():
-        podcast["items"] = 0
+    if "count" not in podcast.keys():
+        podcast["count"] = 0
 
-    if podcast["items"]:
-        range_val = podcast["items"]
+    if podcast["count"]:
+        range_val = podcast["count"]
     else:
         range_val = 1;
 
@@ -81,7 +81,7 @@ def process_podcast_serie(feed, podcast, item):
     if mp3_url is False or len(mp3_url) < 24:
         print(
             datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S") + ": " +
-            "Unable get mp3 from rss: " + podcast["rss_url"],
+            "Unable get mp3 from rss: " + podcast["rss"],
             file = sys.stderr
         )
         return
@@ -115,8 +115,8 @@ def process_podcast_serie(feed, podcast, item):
         return
 
     # remove old series
-    if podcast["items"]:
-        delete_old_podcasts(podcast["folder"], podcast["items"])
+    if podcast["count"]:
+        delete_old_podcasts(podcast["folder"], podcast["count"])
 
     if is_hide() is False:
         print("downloaded! ", end = "")
