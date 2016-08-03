@@ -1,7 +1,7 @@
 podcast-downloader
 ==================
 
-**This script will download podcasts from RSS feeds, notify you on email and rotate files when new serie is come
+**This script will download podcasts from RSS feeds, notify you on email and rotate files when new serie is come**
 
 --
 
