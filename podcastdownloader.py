@@ -74,7 +74,7 @@ def process_podcast_serie(feed, podcast, item):
     # add indent
     if is_quiet() is False:
         print('        ', end = '')
-        print(str(item + 1) + ' with the end. ', end = '')
+        print(str(item + 1) + '. ', end = '')
 
     mp3_url = get_mp3_url_from_rss(feed, podcast, item)
 
