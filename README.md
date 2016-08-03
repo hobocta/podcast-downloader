@@ -1,53 +1,43 @@
 podcast-downloader
 ==================
 
-**Скрипт на python 3, который скачивает свежие подкасты из указанных RSS лент**
+**This script will download podcasts from RSS feeds, notify you on email and rotate files when new serie is come
 
 --
 
-Для работы требуется установленный пакет [feedparser](https://pypi.python.org/pypi/feedparser)
+Required package: [feedparser](https://pypi.python.org/pypi/feedparser)
 
 --
 
-На вход принимает список подкастов в следующем формате:
+Config:
 
 ```
-download = [
+podcasts = [
     {
-        "name": "Радио-Т",
-        "rss_url": "http://feeds.rucast.net/radio-t",
+        "name": "Radio-T",
+        "rss": "http://feeds.rucast.net/radio-t",
         "folder": "/home/btsync/podcasts/radio-t",
         "items": 3,
-        "email": "contact@site-home.ru",
+        "email": "email@example.com",
     },
 ]
 ```
 
-* name — имя подкаста
-* rss_url — rss лента из которой можно взять mp3'шки
-* folder — полный путь к папке куда будем складывать файлы, без слеша вконце, для каждого подкаста обязательно нужно завести отдельную папку (создать вручную), чтобы корректно отрабатывало удаление старых подкастов, когда количество файлов в папке превышает цифру указанную в параметре items
-* items — сколько крайних подкастов обрабатывать и хранить
-* email — куда отправить уведомление о новом подкасте, не обязательно для заполнения, если ругается при запуске - уберите этот параметр
+* name — podcast name
+* rss — feed url
+* folder — path to folder
+* count — how many series will keep
+* email — email for notification [optional]
 
 --
 
-При запуске с ключом hide сообщения на экран выводиться не будут.
+Use argument "quiet" for hide output to console
 
 --
 
-Запускать на linux можно через crontab, например так:
+Run on linux is possible through crontab, for example:
 ```
 */20 * * * * python3 /home/python/podcast-downloader/run.py hide
 ```
 
-Для запуска из под windows имеется файл run.cmd.
-
---
-
-Выполнение скрипта в консоли выглядит примерно так:
-![Скриншот bash](https://dl.dropboxusercontent.com/u/15126083/ShareX/2015/01/2015-01-07_23-14-45.png)
-
---
-
-Уведомление, приходящее на почту, выглядит так:
-![Скриншот письма](https://dl.dropboxusercontent.com/u/15126083/ShareX/2015/01/2015-01-07_23-15-55.png)
+To start on windows run file run.cmd.
