@@ -34,7 +34,7 @@ def processPodcasts(podcasts):
 def processPodcast(podcast):
 
     if not isQuiet():
-        logger.info(podcast['name'] + ': start')
+        logger.info('%s: start' % (podcast['name']))
 
     # parse rss (3 attempts)
     tryCount = 1
@@ -43,7 +43,7 @@ def processPodcast(podcast):
         feed = feedparser.parse(podcast['rss'])
         if len(feed.entries) < 1:
             if not isQuiet():
-                logger.warning(podcast['name'] + ': get rss ' + podcast['rss'] + ': ' + str(tryCount) + ' (of ' + str(tryCounts) + ') attempt failed')
+                logger.info('%s: get rss %s: %s (of %s) attempt failed' % (podcast['name'], podcast['rss'], str(tryCount), str(tryCounts)))
             if tryCount < tryCounts:
                 time.sleep(tryCount * 30)
             tryCount += 1
@@ -51,11 +51,11 @@ def processPodcast(podcast):
             break
 
     if len(feed.entries) < 1:
-        logger.error(podcast['rss'] + ': unable to get feed by url="' + podcast['rss'] + '"')
+        logger.error('%s: unable to get feed by url %s' % (podcast['name'], podcast['rss']))
         return
 
     if not isQuiet():
-        logger.info(podcast['name'] + ': got feed')
+        logger.info('%s: get feed' % (podcast['name']))
 
     if 'count' not in podcast.keys():
         podcast['count'] = 3
@@ -64,24 +64,24 @@ def processPodcast(podcast):
         processPodcastEpisode(feed, podcast, item)
 
     if not isQuiet():
-        logger.info(podcast['name'] + ': finish')
+        logger.info('%s: finish' % (podcast['name']))
 
 def processPodcastEpisode(feed, podcast, item):
 
     fileUrl = getFileUrlFromFeed(feed, podcast, item)
 
     if not fileUrl or len(fileUrl) < 24:
-        logger.error(podcast['name'] + ': unable to get link to file from feed by url="' + podcast['rss'] + '"')
+        logger.error('%s: unable to get link to file from feed by url %s' % (podcast['name'], podcast['rss']))
         return
-
-    if not isQuiet():
-        logger.info(podcast['name'] + ': got link to file')
 
     fileName = re.search('[0-9a-zA-Z\.\-_]+\.m[p34a]+', fileUrl).group()
 
+    if not isQuiet():
+        logger.info('%s: get link to file %s' % (podcast['name'], fileName))
+
     podcast['folder'] = getPodcastFolderPath(podcast['folder'])
 
-    filePath = podcast['folder'] + '/' + fileName
+    filePath = '%s/%s' % (podcast['folder'], fileName)
 
     # do we have this file
     if os.path.isfile(filePath) and os.stat(filePath).st_size == 0:
@@ -89,20 +89,20 @@ def processPodcastEpisode(feed, podcast, item):
 
     if os.path.isfile(filePath):
         if not isQuiet():
-            logger.info(podcast['name'] + ': file already exists')
+            logger.info('%s: skip, file already exists' % (podcast['name']))
         return
 
     if not isQuiet():
-        logger.info(podcast['name'] + ': download start')
+        logger.info('%s: download start' % (podcast['name']))
 
     isSaved = podcastSave(fileUrl, filePath)
 
     if not isSaved:
-        logger.error(podcast['name'] + ': download failed')
+        logger.error('%s: download failed' % (podcast['name']))
         return
 
     if not isQuiet():
-        logger.info(podcast['name'] + ': download success')
+        logger.info('%s: download success' % (podcast['name']))
 
     # remove old episodes
     if podcast['count']:
@@ -113,15 +113,15 @@ def processPodcastEpisode(feed, podcast, item):
         result = sendEmail(podcast, fileName)
         if not isQuiet():
             if result:
-                logger.info(podcast['name'] + ': email sent')
+                logger.info('%s: email to %s sent' % (podcast['name'], podcast['email']))
             else:
-                logger.warning(podcast['name'] + ': unable to send email')
+                logger.warning('%s: unable to send email' % (podcast['name']))
 
 
 def getPodcastFolderPath(folder):
 
     if not os.path.isabs(folder):
-        folder = os.path.dirname(os.path.abspath(__file__)) + '/' + folder
+        folder = '%s/%s' % (os.path.dirname(os.path.abspath(__file__)), folder)
         folder = os.path.abspath(folder)
 
     # create folder if not exists
@@ -201,7 +201,7 @@ def sendEmail(podcast, fileName):
 
     msg = MIMEText(fileName)
 
-    msg['Subject'] = 'New episode of podcast ' + podcast['name'] + ': ' + fileName
+    msg['Subject'] = 'New episode of podcast %s: %s' % (podcast['name'], fileName)
     msg['From'] = podcast['email']
     msg['To'] = podcast['email']
 
