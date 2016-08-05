@@ -17,7 +17,6 @@ import feedparser
 logging.config.fileConfig('logging.conf')
 logger = logging.getLogger('podcastDownloader')
 
-
 def processPodcasts(podcasts):
 
     log('Start')
@@ -52,19 +51,19 @@ def processPodcast(podcast):
 
 def getFeed(podcast):
 
-    tryCount = 1
-    tryCounts = 3
+    tryLimit = 3
 
-    while tryCount <= tryCounts:
+    tryNum = 1
+    while tryNum <= tryLimit:
         feed = feedparser.parse(podcast['rss'])
 
         if len(feed.entries) < 1:
-            log('%s: get rss %s: %s (of %s) attempt failed' % (podcast['name'], podcast['rss'], str(tryCount), str(tryCounts)))
+            log('%s: get rss %s: %s (of %s) attempt failed' % (podcast['name'], podcast['rss'], str(tryNum), str(tryLimit)))
 
-            if tryCount < tryCounts:
-                time.sleep(tryCount * 30)
+            if tryNum < tryLimit:
+                time.sleep(tryNum * 30)
 
-            tryCount += 1
+            tryNum += 1
         else:
             break
 
@@ -107,20 +106,11 @@ def getFileUrlFromFeed(feed, podcast, item):
 
     fileUrl = False
 
-    if (
-        type(feed) is feedparser.FeedParserDict
-        and type(feed.entries) is list
-        and len(feed.entries) > 0
-    ):
-        if (
-            len(feed.entries[item].enclosures)
-            and type(feed.entries[item].enclosures[0].href) is str
-        ):
+    if type(feed) is feedparser.FeedParserDict and type(feed.entries) is list and len(feed.entries) > 0:
+
+        if len(feed.entries[item].enclosures) and type(feed.entries[item].enclosures[0].href) is str:
             pass
-        elif (
-            len(feed.entries[item + 1].enclosures)
-            and type(feed.entries[item + 1].enclosures[0].href) is str
-        ):
+        elif len(feed.entries[item + 1].enclosures) and type(feed.entries[item + 1].enclosures[0].href) is str:
             item = item + 1
 
         fileUrl = feed.entries[item].enclosures[0].href
@@ -199,6 +189,7 @@ def getStoredEpisodes(podcast):
     for i in range(len(storedEdisodes)):
         if (re.match('^\.', storedEdisodes[i]) is None):
             storedEdisodesTmp.append(storedEdisodes[i])
+
     storedEdisodes = storedEdisodesTmp
     storedEdisodesTmp = None
 
@@ -225,6 +216,7 @@ def sendEmail(podcast, fileName):
             log('%s: email to %s sent' % (podcast['name'], podcast['email']))
 
             return True
+
         except:
             log('%s: unable to send email' % (podcast['name']), 'warning')
 
