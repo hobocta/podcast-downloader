@@ -143,13 +143,13 @@ def downloadEpisode(podcast, fileUrl, filePath):
 
     log('%s: download start' % (podcast['name']))
 
-    if podcastSave(fileUrl, filePath):
+    if episodeSave(fileUrl, filePath):
         log('%s: download success' % (podcast['name']))
     else:
         log('%s: download failed' % (podcast['name']), 'error')
 
 
-def podcastSave(fileUrl, filePath):
+def episodeSave(fileUrl, filePath):
 
     # download file
     localFilePath, headers = urllib.request.urlretrieve(fileUrl, filePath)
