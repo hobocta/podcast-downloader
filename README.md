@@ -17,8 +17,6 @@ podcasts = [
         "name": "Radio-T",
         "rss": "http://feeds.rucast.net/radio-t",
         "folder": "/home/btsync/podcasts/radio-t",
-        "items": 3,
-        "email": "email@example.com",
     },
 ]
 ```
@@ -26,7 +24,7 @@ podcasts = [
 * name — podcast name
 * rss — feed url
 * folder — path to folder
-* count — how many episodes will keep
+* count — how many episodes will keep [optional] (by default: 3)
 * email — email for notification [optional]
 
 --
