@@ -34,7 +34,7 @@ def processPodcasts(podcasts):
 def processPodcast(podcast):
 
     if not isQuiet():
-        logger.info('Start process podcast: "' + podcast['name'] + '"')
+        logger.info(podcast['name'] + ': start')
 
     # parse rss (3 attempts)
     tryCount = 1
@@ -43,7 +43,7 @@ def processPodcast(podcast):
         feed = feedparser.parse(podcast['rss'])
         if len(feed.entries) < 1:
             if not isQuiet():
-                logger.warning('Get rss ' + podcast['rss'] + ': ' + str(tryCount) + ' (of ' + str(tryCounts) + ') attempt failed')
+                logger.warning(podcast['name'] + ': get rss ' + podcast['rss'] + ': ' + str(tryCount) + ' (of ' + str(tryCounts) + ') attempt failed')
             if tryCount < tryCounts:
                 time.sleep(tryCount * 30)
             tryCount += 1
@@ -51,13 +51,11 @@ def processPodcast(podcast):
             break
 
     if len(feed.entries) < 1:
-        message = datetime.datetime.now().strftime('%d.%m.%Y %H:%M:%S') + ': ' + 'Unable to get rss: ' + podcast['rss']
-        if not isQuiet():
-            logger.error(message)
+        logger.error(podcast['rss'] + ': unable to get feed by url="' + podcast['rss'] + '"')
         return
 
     if not isQuiet():
-        logger.info('Got RSS')
+        logger.info(podcast['name'] + ': got feed')
 
     if 'count' not in podcast.keys():
         podcast['count'] = 0
@@ -70,21 +68,19 @@ def processPodcast(podcast):
     for item in range(0, rangeVal):
         processPodcastEpisode(feed, podcast, item)
 
+    if not isQuiet():
+        logger.info(podcast['name'] + ': finish')
 
 def processPodcastEpisode(feed, podcast, item):
 
     fileUrl = getFileUrlFromFeed(feed, podcast, item)
 
     if not fileUrl or len(fileUrl) < 24:
-        logger.error(
-            datetime.datetime.now().strftime('%d.%m.%Y %H:%M:%S') + ': ' +
-            'Unable to get mp3 from rss: ' + podcast['rss'],
-            file = sys.stderr
-        )
+        logger.error(podcast['name'] + ': unable to get link to file from feed by url="' + podcast['rss'] + '"')
         return
 
     if not isQuiet():
-        logger.info('Got file link')
+        logger.info(podcast['name'] + ': got link to file')
 
     fileName = re.search('[0-9a-zA-Z\.\-_]+\.m[p34a]+', fileUrl).group()
 
@@ -98,17 +94,16 @@ def processPodcastEpisode(feed, podcast, item):
 
     if os.path.isfile(filePath):
         if not isQuiet():
-            logger.info('This file already exists')
+            logger.info(podcast['name'] + ': file already exists')
         return
 
     if not isQuiet():
-        logger.info('Start download')
+        logger.info(podcast['name'] + ': download start')
 
     isSaved = podcastSave(fileUrl, filePath)
 
     if not isSaved:
-        if not isQuiet():
-            logger.error('Download failed')
+        logger.error(podcast['name'] + ': download failed')
         return
 
     # remove old episodes
@@ -116,16 +111,16 @@ def processPodcastEpisode(feed, podcast, item):
         deleteOldFiles(podcast['folder'], podcast['count'])
 
     if not isQuiet():
-        logger.info('Download success')
+        logger.info(podcast['name'] + ': download success')
 
     # email send
     if 'email' in podcast and len(podcast['email']):
         result = sendEmail(podcast, fileName)
         if not isQuiet():
             if result:
-                logger.info('Email sent')
+                logger.info(podcast['name'] + ': email sent')
             else:
-                logger.warning('Unable to send email')
+                logger.warning(podcast['name'] + ': unable to send email')
 
 
 def getPodcastFolderPath(folder):
