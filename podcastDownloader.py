@@ -75,7 +75,7 @@ def processPodcastEpisode(feed, podcast, item):
 
     fileUrl = getFileUrlFromFeed(feed, podcast, item)
 
-    if fileUrl is False or len(fileUrl) < 24:
+    if not fileUrl or len(fileUrl) < 24:
         logger.error(
             datetime.datetime.now().strftime('%d.%m.%Y %H:%M:%S') + ': ' +
             'Unable to get mp3 from rss: ' + podcast['rss'],
@@ -106,7 +106,7 @@ def processPodcastEpisode(feed, podcast, item):
 
     isSaved = podcastSave(fileUrl, filePath)
 
-    if isSaved is False:
+    if not isSaved:
         if not isQuiet():
             logger.error('Download failed')
         return
@@ -130,12 +130,12 @@ def processPodcastEpisode(feed, podcast, item):
 
 def getPodcastFolderPath(folder):
 
-    if os.path.isabs(folder) is False:
+    if not os.path.isabs(folder):
         folder = os.path.dirname(os.path.abspath(__file__)) + '/' + folder
         folder = os.path.abspath(folder)
 
     # create folder if not exists
-    if os.path.exists(folder) is False:
+    if not os.path.exists(folder):
         os.makedirs(folder)
 
     return folder
