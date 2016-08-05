@@ -36,22 +36,9 @@ def processPodcast(podcast):
     if not isQuiet():
         logger.info('%s: start' % (podcast['name']))
 
-    # parse rss (3 attempts)
-    tryCount = 1
-    tryCounts = 3
-    while tryCount <= tryCounts:
-        feed = feedparser.parse(podcast['rss'])
-        if len(feed.entries) < 1:
-            if not isQuiet():
-                logger.info('%s: get rss %s: %s (of %s) attempt failed' % (podcast['name'], podcast['rss'], str(tryCount), str(tryCounts)))
-            if tryCount < tryCounts:
-                time.sleep(tryCount * 30)
-            tryCount += 1
-        else:
-            break
+    feed = getFeed(podcast)
 
-    if len(feed.entries) < 1:
-        logger.error('%s: unable to get feed by url %s' % (podcast['name'], podcast['rss']))
+    if not feed:
         return
 
     if not isQuiet():
@@ -65,6 +52,34 @@ def processPodcast(podcast):
 
     if not isQuiet():
         logger.info('%s: finish' % (podcast['name']))
+
+
+def getFeed(podcast):
+
+    tryCount = 1
+    tryCounts = 3
+
+    while tryCount <= tryCounts:
+        feed = feedparser.parse(podcast['rss'])
+
+        if len(feed.entries) < 1:
+            if not isQuiet():
+                logger.info('%s: get rss %s: %s (of %s) attempt failed' % (podcast['name'], podcast['rss'], str(tryCount), str(tryCounts)))
+
+            if tryCount < tryCounts:
+                time.sleep(tryCount * 30)
+
+            tryCount += 1
+        else:
+            break
+
+    if len(feed.entries) < 1:
+        logger.error('%s: unable to get feed by url %s' % (podcast['name'], podcast['rss']))
+
+        return False
+
+    return feed
+
 
 def processPodcastEpisode(feed, podcast, item):
 
@@ -110,12 +125,7 @@ def processPodcastEpisode(feed, podcast, item):
 
     # email send
     if 'email' in podcast and len(podcast['email']):
-        result = sendEmail(podcast, fileName)
-        if not isQuiet():
-            if result:
-                logger.info('%s: email to %s sent' % (podcast['name'], podcast['email']))
-            else:
-                logger.warning('%s: unable to send email' % (podcast['name']))
+        sendEmail(podcast, fileName)
 
 
 def getPodcastFolderPath(folder):
@@ -210,8 +220,14 @@ def sendEmail(podcast, fileName):
         s.send_message(msg)
         s.quit()
 
+        if not isQuiet():
+            logger.info('%s: email to %s sent' % (podcast['name'], podcast['email']))
+
         return True
     except:
+        if not isQuiet():
+            logger.warning('%s: unable to send email' % (podcast['name']))
+
         return False
 
 
