@@ -58,14 +58,9 @@ def processPodcast(podcast):
         logger.info(podcast['name'] + ': got feed')
 
     if 'count' not in podcast.keys():
-        podcast['count'] = 0
+        podcast['count'] = 3
 
-    if podcast['count']:
-        rangeVal = podcast['count']
-    else:
-        rangeVal = 1;
-
-    for item in range(0, rangeVal):
+    for item in range(0, podcast['count']):
         processPodcastEpisode(feed, podcast, item)
 
     if not isQuiet():
@@ -106,12 +101,12 @@ def processPodcastEpisode(feed, podcast, item):
         logger.error(podcast['name'] + ': download failed')
         return
 
-    # remove old episodes
-    if podcast['count']:
-        deleteOldFiles(podcast['folder'], podcast['count'])
-
     if not isQuiet():
         logger.info(podcast['name'] + ': download success')
+
+    # remove old episodes
+    if podcast['count']:
+        deleteOldFiles(podcast, podcast['count'])
 
     # email send
     if 'email' in podcast and len(podcast['email']):
@@ -177,13 +172,12 @@ def podcastSave(fileUrl, filePath):
     return result
 
 
-def deleteOldFiles(folder, rotate):
+def deleteOldFiles(podcast, rotate):
 
-    os.chdir(folder)
-    storedFiles = os.listdir(folder)
-    storedFilesTmp = []
+    storedFiles = [os.path.join(podcast['folder'], f) for f in os.listdir(podcast['folder'])]
 
     # skip hidden files
+    storedFilesTmp = []
     for i in range(len(storedFiles)):
         if (re.match('^\.', storedFiles[i]) is None):
             storedFilesTmp.append(storedFiles[i])
@@ -194,8 +188,12 @@ def deleteOldFiles(folder, rotate):
     storedFiles.sort(key=lambda x: os.path.getmtime(x))
 
     while (len(storedFiles) > rotate):
-        oldestFile = folder + '/' + storedFiles[0]
-        os.path.exists(oldestFile) and os.remove(oldestFile)
+        if os.path.exists(storedFiles[0]):
+            os.remove(storedFiles[0])
+
+            if not isQuiet():
+                logger.info('%s: old episode deleted - %s' % (podcast['name'], storedFiles[0]))
+
         storedFiles.remove(storedFiles[0])
 
 
