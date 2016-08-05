@@ -214,7 +214,7 @@ def sendEmail(podcast, fileName):
 
     try:
         s = SMTP('localhost')
-        s.smtpend_message(msg)
+        s.send_message(msg)
         s.quit()
 
         return True
