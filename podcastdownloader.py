@@ -17,7 +17,7 @@ import feedparser
 logging.config.fileConfig('logging.conf')
 logger = logging.getLogger('podcastDownloader')
 
-def process_podcasts(podcasts):
+def processPodcasts(podcasts):
 
     if not isQuiet():
         logger.info('Start')
@@ -25,28 +25,28 @@ def process_podcasts(podcasts):
     shuffle(podcasts)
 
     for podcast in podcasts:
-        process_podcast(podcast)
+        processPodcast(podcast)
 
     if not isQuiet():
         logger.info('Finish')
 
 
-def process_podcast(podcast):
+def processPodcast(podcast):
 
     if not isQuiet():
         logger.info('Start process podcast: "' + podcast['name'] + '"')
 
     # parse rss (3 attempts)
-    try_count = 1
-    try_counts = 3
-    while try_count <= try_counts:
+    tryCount = 1
+    tryCounts = 3
+    while tryCount <= tryCounts:
         feed = feedparser.parse(podcast['rss'])
         if len(feed.entries) < 1:
             if not isQuiet():
-                logger.warning('Get rss ' + podcast['rss'] + ': ' + str(try_count) + ' (of ' + str(try_counts) + ') attempt failed')
-            if try_count < try_counts:
-                time.sleep(try_count * 30)
-            try_count += 1
+                logger.warning('Get rss ' + podcast['rss'] + ': ' + str(tryCount) + ' (of ' + str(tryCounts) + ') attempt failed')
+            if tryCount < tryCounts:
+                time.sleep(tryCount * 30)
+            tryCount += 1
         else:
             break
 
@@ -63,19 +63,19 @@ def process_podcast(podcast):
         podcast['count'] = 0
 
     if podcast['count']:
-        range_val = podcast['count']
+        rangeVal = podcast['count']
     else:
-        range_val = 1;
+        rangeVal = 1;
 
-    for item in range(0, range_val):
-        process_podcast_episode(feed, podcast, item)
+    for item in range(0, rangeVal):
+        processPodcastEpisode(feed, podcast, item)
 
 
-def process_podcast_episode(feed, podcast, item):
+def processPodcastEpisode(feed, podcast, item):
 
-    mp3_url = get_mp3_url_from_rss(feed, podcast, item)
+    fileUrl = getFileUrlFromFeed(feed, podcast, item)
 
-    if mp3_url is False or len(mp3_url) < 24:
+    if fileUrl is False or len(fileUrl) < 24:
         logger.error(
             datetime.datetime.now().strftime('%d.%m.%Y %H:%M:%S') + ': ' +
             'Unable to get mp3 from rss: ' + podcast['rss'],
@@ -86,17 +86,17 @@ def process_podcast_episode(feed, podcast, item):
     if not isQuiet():
         logger.info('Got file link')
 
-    file_name = re.search('[0-9a-zA-Z\.\-_]+\.m[p34a]+', mp3_url).group()
+    fileName = re.search('[0-9a-zA-Z\.\-_]+\.m[p34a]+', fileUrl).group()
 
-    podcast['folder'] = get_podcast_folder_path(podcast['folder'])
+    podcast['folder'] = getPodcastFolderPath(podcast['folder'])
 
-    file_path = podcast['folder'] + '/' + file_name
+    filePath = podcast['folder'] + '/' + fileName
 
     # do we have this file
-    if os.path.isfile(file_path) and os.stat(file_path).st_size == 0:
-        os.remove(file_path)
+    if os.path.isfile(filePath) and os.stat(filePath).st_size == 0:
+        os.remove(filePath)
 
-    if os.path.isfile(file_path):
+    if os.path.isfile(filePath):
         if not isQuiet():
             logger.info('This file already exists')
         return
@@ -104,23 +104,23 @@ def process_podcast_episode(feed, podcast, item):
     if not isQuiet():
         logger.info('Start download')
 
-    is_saved = podcast_save(mp3_url, file_path)
+    isSaved = podcastSave(fileUrl, filePath)
 
-    if is_saved is False:
+    if isSaved is False:
         if not isQuiet():
             logger.error('Download failed')
         return
 
     # remove old episodes
     if podcast['count']:
-        delete_old_podcasts(podcast['folder'], podcast['count'])
+        deleteOldFiles(podcast['folder'], podcast['count'])
 
     if not isQuiet():
         logger.info('Download success')
 
     # email send
     if 'email' in podcast and len(podcast['email']):
-        result = send_email(podcast, file_name)
+        result = sendEmail(podcast, fileName)
         if not isQuiet():
             if result:
                 logger.info('Email sent')
@@ -128,7 +128,7 @@ def process_podcast_episode(feed, podcast, item):
                 logger.warning('Unable to send email')
 
 
-def get_podcast_folder_path(folder):
+def getPodcastFolderPath(folder):
 
     if os.path.isabs(folder) is False:
         folder = os.path.dirname(os.path.abspath(__file__)) + '/' + folder
@@ -141,9 +141,9 @@ def get_podcast_folder_path(folder):
     return folder
 
 
-def get_mp3_url_from_rss(feed, podcast, item):
+def getFileUrlFromFeed(feed, podcast, item):
 
-    mp3_url = False
+    fileUrl = False
 
     if (
         type(feed) is feedparser.FeedParserDict
@@ -161,54 +161,54 @@ def get_mp3_url_from_rss(feed, podcast, item):
         ):
             item = item + 1
 
-        mp3_url = feed.entries[item].enclosures[0].href
+        fileUrl = feed.entries[item].enclosures[0].href
 
-    return mp3_url
+    return fileUrl
 
 
-def podcast_save(mp3_url, file_path):
+def podcastSave(fileUrl, filePath):
 
     # download file
-    local_file_path, headers = urllib.request.urlretrieve(mp3_url, file_path)
+    localFilePath, headers = urllib.request.urlretrieve(fileUrl, filePath)
 
     # get local file size
-    local_file = open(local_file_path)
-    local_file.seek(0, os.SEEK_END)
-    local_file_size = local_file.tell()
-    local_file.close()
+    localFile = open(localFilePath)
+    localFile.seek(0, os.SEEK_END)
+    localFileSize = localFile.tell()
+    localFile.close()
 
-    result = local_file_size > 0
+    result = localFileSize > 0
 
     return result
 
 
-def delete_old_podcasts(folder, rotate):
+def deleteOldFiles(folder, rotate):
 
     os.chdir(folder)
-    stored_files = os.listdir(folder)
-    stored_files_tmp = []
+    storedFiles = os.listdir(folder)
+    storedFilesTmp = []
 
     # skip hidden files
-    for i in range(len(stored_files)):
-        if (re.match('^\.', stored_files[i]) is None):
-            stored_files_tmp.append(stored_files[i])
-    stored_files = stored_files_tmp
-    stored_files_tmp = None
+    for i in range(len(storedFiles)):
+        if (re.match('^\.', storedFiles[i]) is None):
+            storedFilesTmp.append(storedFiles[i])
+    storedFiles = storedFilesTmp
+    storedFilesTmp = None
 
     # sort by date
-    stored_files.sort(key=lambda x: os.path.getmtime(x))
+    storedFiles.sort(key=lambda x: os.path.getmtime(x))
 
-    while (len(stored_files) > rotate):
-        oldest_file = folder + '/' + stored_files[0]
-        os.path.exists(oldest_file) and os.remove(oldest_file)
-        stored_files.remove(stored_files[0])
+    while (len(storedFiles) > rotate):
+        oldestFile = folder + '/' + storedFiles[0]
+        os.path.exists(oldestFile) and os.remove(oldestFile)
+        storedFiles.remove(storedFiles[0])
 
 
-def send_email(podcast, file_name):
+def sendEmail(podcast, fileName):
 
-    msg = MIMEText(file_name)
+    msg = MIMEText(fileName)
 
-    msg['Subject'] = 'New episode of podcast ' + podcast['name'] + ': ' + file_name
+    msg['Subject'] = 'New episode of podcast ' + podcast['name'] + ': ' + fileName
     msg['From'] = podcast['email']
     msg['To'] = podcast['email']
 
@@ -220,6 +220,7 @@ def send_email(podcast, file_name):
         return True
     except:
         return False
+
 
 def isQuiet():
     return (len(sys.argv) > 1 and sys.argv[1] == 'quiet')

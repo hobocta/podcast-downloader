@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 # Подключаем функции
-from podcastdownloader import process_podcasts
+from podcastDownloader import processPodcasts
 
 # Подключаем список подкастов
 from config import podcasts
 
 # Запускаем процесс
-process_podcasts(podcasts)
+processPodcasts(podcasts)
