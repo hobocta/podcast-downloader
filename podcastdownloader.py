@@ -6,25 +6,35 @@ import re
 import os
 import time
 import datetime
+import logging
+import logging.config
 import urllib.request
 from random import shuffle
 from smtplib import SMTP
 from email.mime.text import MIMEText
 import feedparser
 
+logging.config.fileConfig('logging.conf')
+logger = logging.getLogger('podcastDownloader')
 
 def process_podcasts(podcasts):
+
+    if not isQuiet():
+        logger.info('Start')
 
     shuffle(podcasts)
 
     for podcast in podcasts:
         process_podcast(podcast)
 
+    if not isQuiet():
+        logger.info('Finish')
+
 
 def process_podcast(podcast):
 
-    if is_quiet() is False:
-        print('\n' + 'Check rss of podcast :"' + podcast['name'] + '":')
+    if not isQuiet():
+        logger.info('Start process podcast: "' + podcast['name'] + '"')
 
     # parse rss (3 attempts)
     try_count = 1
@@ -32,11 +42,8 @@ def process_podcast(podcast):
     while try_count <= try_counts:
         feed = feedparser.parse(podcast['rss'])
         if len(feed.entries) < 1:
-            if is_quiet() is False:
-                print(
-                    'Get rss ' + podcast['rss'] +
-                    ': ' + str(try_count) + ' (of ' + str(try_counts) + ') attempt failed'
-                )
+            if not isQuiet():
+                logger.warning('Get rss ' + podcast['rss'] + ': ' + str(try_count) + ' (of ' + str(try_counts) + ') attempt failed')
             if try_count < try_counts:
                 time.sleep(try_count * 30)
             try_count += 1
@@ -44,18 +51,13 @@ def process_podcast(podcast):
             break
 
     if len(feed.entries) < 1:
-        if is_quiet() is False:
-            print(
-                datetime.datetime.now().strftime('%d.%m.%Y %H:%M:%S') + ': ' +
-                'Unable to get rss: ' + podcast['rss']
-            )
-            # view error detail
-            print(feed)
+        message = datetime.datetime.now().strftime('%d.%m.%Y %H:%M:%S') + ': ' + 'Unable to get rss: ' + podcast['rss']
+        if not isQuiet():
+            logger.error(message)
         return
 
-    if is_quiet() is False:
-        print('    ', end = '')
-        print('Got RSS. Process series:')
+    if not isQuiet():
+        logger.info('Got RSS')
 
     if 'count' not in podcast.keys():
         podcast['count'] = 0
@@ -66,28 +68,23 @@ def process_podcast(podcast):
         range_val = 1;
 
     for item in range(0, range_val):
-        process_podcast_serie(feed, podcast, item)
+        process_podcast_episode(feed, podcast, item)
 
 
-def process_podcast_serie(feed, podcast, item):
-
-    # add indent
-    if is_quiet() is False:
-        print('        ', end = '')
-        print(str(item + 1) + '. ', end = '')
+def process_podcast_episode(feed, podcast, item):
 
     mp3_url = get_mp3_url_from_rss(feed, podcast, item)
 
     if mp3_url is False or len(mp3_url) < 24:
-        print(
+        logger.error(
             datetime.datetime.now().strftime('%d.%m.%Y %H:%M:%S') + ': ' +
             'Unable to get mp3 from rss: ' + podcast['rss'],
             file = sys.stderr
         )
         return
 
-    if is_quiet() is False:
-        print('Got file link. ', end = '')
+    if not isQuiet():
+        logger.info('Got file link')
 
     file_name = re.search('[0-9a-zA-Z\.\-_]+\.m[p34a]+', mp3_url).group()
 
@@ -100,38 +97,35 @@ def process_podcast_serie(feed, podcast, item):
         os.remove(file_path)
 
     if os.path.isfile(file_path):
-        if is_quiet() is False:
-            print('This file already exists.')
+        if not isQuiet():
+            logger.info('This file already exists')
         return
 
-    if is_quiet() is False:
-        print('Downloading... ', end = '')
+    if not isQuiet():
+        logger.info('Start download')
 
     is_saved = podcast_save(mp3_url, file_path)
 
     if is_saved is False:
-        if is_quiet() is False:
-            print('error.')
+        if not isQuiet():
+            logger.error('Download failed')
         return
 
-    # remove old series
+    # remove old episodes
     if podcast['count']:
         delete_old_podcasts(podcast['folder'], podcast['count'])
 
-    if is_quiet() is False:
-        print('downloaded! ', end = '')
+    if not isQuiet():
+        logger.info('Download success')
 
     # email send
     if 'email' in podcast and len(podcast['email']):
         result = send_email(podcast, file_name)
-        if is_quiet() is False:
+        if not isQuiet():
             if result:
-                print('Email sent.', end = '')
+                logger.info('Email sent')
             else:
-                print('Unable to send email.', end = '')
-
-    if is_quiet() is False:
-        print()
+                logger.warning('Unable to send email')
 
 
 def get_podcast_folder_path(folder):
@@ -214,7 +208,7 @@ def send_email(podcast, file_name):
 
     msg = MIMEText(file_name)
 
-    msg['Subject'] = 'New serie of podcast ' + podcast['name'] + ': ' + file_name
+    msg['Subject'] = 'New episode of podcast ' + podcast['name'] + ': ' + file_name
     msg['From'] = podcast['email']
     msg['To'] = podcast['email']
 
@@ -227,5 +221,5 @@ def send_email(podcast, file_name):
     except:
         return False
 
-def is_quiet():
-    return len(sys.argv) > 1 and sys.argv[1] == 'quiet'
+def isQuiet():
+    return (len(sys.argv) > 1 and sys.argv[1] == 'quiet')
