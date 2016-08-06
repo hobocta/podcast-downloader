@@ -5,7 +5,7 @@ podcasts = [
     {
         "name": "The Big Podcast",
         "rss": "http://bigpodcast.ru/rss",
-        "folder": "../podcasts/tbp/",
+        "folder": "../podcasts/tbp",
         "email": "contact@site-home.ru",
     },
     {
