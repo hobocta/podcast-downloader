@@ -14,7 +14,7 @@ from smtplib import SMTP
 from email.mime.text import MIMEText
 import feedparser
 
-logging.config.fileConfig('logging.conf')
+logging.config.fileConfig(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logging.conf'))
 logger = logging.getLogger('podcastDownloader')
 
 def processPodcasts(podcasts):
