@@ -31,22 +31,40 @@ def processPodcasts(podcasts):
 
 def processPodcast(podcast):
 
-    log('%s: start' % (podcast['name']))
+    log('%-15s: start' % (podcast['name']), 'dubug')
 
     feed = getFeed(podcast)
 
     if not feed:
         return
 
-    log('%s: get feed' % (podcast['name']))
+    log('%-15s: get feed' % (podcast['name']), 'dubug')
 
     if 'count' not in podcast.keys():
         podcast['count'] = 3
 
-    for item in range(0, podcast['count']):
-        processPodcastEpisode(feed, podcast, item)
+    reportSummary = getReportDefault()
 
-    log('%s: finish' % (podcast['name']))
+    for item in range(0, podcast['count']):
+        report = processPodcastEpisode(feed, podcast, item)
+        reportSummary = getReportSumm(reportSummary, report)
+
+    log('%-15s: skipped: %s, downloaded: %s, deleted: %s, email sent: %s' % (
+        podcast['name'],
+        reportSummary['skipCount'],
+        reportSummary['downloadCount'],
+        reportSummary['removeCount'],
+        reportSummary['emailCount']
+    ))
+
+    log('%-15s: finish' % (podcast['name']), 'dubug')
+
+
+def getReportSumm(reportSummary, report):
+    for key in reportSummary:
+        reportSummary[key] = reportSummary[key] + report[key]
+
+    return reportSummary
 
 
 def getFeed(podcast):
@@ -58,7 +76,7 @@ def getFeed(podcast):
         feed = feedparser.parse(podcast['rss'])
 
         if len(feed.entries) < 1:
-            log('%s: get rss %s: %s (of %s) attempt failed' % (podcast['name'], podcast['rss'], str(tryNum), str(tryLimit)))
+            log('%-15s: get rss %s: %s (of %s) attempt failed' % (podcast['name'], podcast['rss'], str(tryNum), str(tryLimit)), 'warning')
 
             if tryNum < tryLimit:
                 time.sleep(tryNum * 30)
@@ -68,7 +86,7 @@ def getFeed(podcast):
             break
 
     if len(feed.entries) < 1:
-        log('%s: unable to get feed by url %s' % (podcast['name'], podcast['rss']), 'error')
+        log('%-15s: unable to get feed by url %s' % (podcast['name'], podcast['rss']), 'error')
 
         return False
 
@@ -77,30 +95,41 @@ def getFeed(podcast):
 
 def processPodcastEpisode(feed, podcast, item):
 
+    report = getReportDefault()
+
     fileUrl = getFileUrlFromFeed(feed, podcast, item)
 
     if not fileUrl or len(fileUrl) < 24:
-        log('%s: unable to get link to file from feed by url %s' % (podcast['name'], podcast['rss']), 'error')
+        log('%-15s: unable to get link to file from feed by url %s' % (podcast['name'], podcast['rss']), 'error')
 
     else:
         fileName = re.search('[0-9a-zA-Z\.\-_]+\.m[p34a]+', fileUrl).group()
 
-        log('%s: get link to file %s' % (podcast['name'], fileName))
+        log('%-15s: get link to file %s' % (podcast['name'], fileName), 'debug')
 
         podcast['folder'] = getPodcastFolderPath(podcast['folder'])
 
-        filePath = '%s/%s' % (podcast['folder'], fileName)
+        filePath = os.path.join(podcast['folder'], fileName)
 
         if isEpisodeExists(filePath):
-            log('%s: skip, file already exists' % (podcast['name']))
+            log('%-15s: skip, file already exists' % (podcast['name']), 'debug')
+            report['skipCount'] = report['skipCount'] + 1
 
         else:
-            downloadEpisode(podcast, fileUrl, filePath)
+            if downloadEpisode(podcast, fileUrl, filePath):
+                report['downloadCount'] = report['downloadCount'] + 1
 
-            removeOldEpisodes(podcast, podcast['count'])
+            removeCount = removeOldEpisodes(podcast, podcast['count'])
+            report['removeCount'] = report['removeCount'] + removeCount
 
-            sendEmail(podcast, fileName)
+            if sendEmail(podcast, fileName):
+                report['emailCount'] = report['emailCount'] + 1
 
+    return report
+
+
+def getReportDefault():
+    return {'skipCount': 0, 'downloadCount': 0, 'removeCount': 0, 'emailCount': 0}
 
 def getFileUrlFromFeed(feed, podcast, item):
 
@@ -121,8 +150,7 @@ def getFileUrlFromFeed(feed, podcast, item):
 def getPodcastFolderPath(folder):
 
     if not os.path.isabs(folder):
-        folder = '%s/%s' % (os.path.dirname(os.path.abspath(__file__)), folder)
-        folder = os.path.abspath(folder)
+        folder = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), folder))
 
     # create folder if not exists
     if not os.path.exists(folder):
@@ -141,12 +169,16 @@ def isEpisodeExists(filePath):
 
 def downloadEpisode(podcast, fileUrl, filePath):
 
-    log('%s: download start' % (podcast['name']))
+    log('%-15s: download start' % (podcast['name']), 'debug')
 
     if episodeSave(fileUrl, filePath):
-        log('%s: download success' % (podcast['name']))
+        log('%-15s: download success' % (podcast['name']), 'debug')
+
+        return True
     else:
-        log('%s: download failed' % (podcast['name']), 'error')
+        log('%-15s: download failed' % (podcast['name']), 'error')
+
+        return False
 
 
 def episodeSave(fileUrl, filePath):
@@ -167,6 +199,8 @@ def episodeSave(fileUrl, filePath):
 
 def removeOldEpisodes(podcast, rotate):
 
+    removeCount = 0
+
     if podcast['count']:
 
         storedEdisodes = getStoredEpisodes(podcast)
@@ -175,9 +209,13 @@ def removeOldEpisodes(podcast, rotate):
             if os.path.exists(storedEdisodes[0]):
                 os.remove(storedEdisodes[0])
 
-                log('%s: old episode deleted - %s' % (podcast['name'], storedEdisodes[0]))
+                removeCount = removeCount + 1
+
+                log('%-15s: old episode deleted - %s' % (podcast['name'], storedEdisodes[0]), 'debug')
 
             storedEdisodes.remove(storedEdisodes[0])
+
+    return removeCount
 
 
 def getStoredEpisodes(podcast):
@@ -213,26 +251,29 @@ def sendEmail(podcast, fileName):
             s.send_message(msg)
             s.quit()
 
-            log('%s: email to %s sent' % (podcast['name'], podcast['email']))
+            log('%-15s: email to %s sent' % (podcast['name'], podcast['email']), 'debug')
 
             return True
 
         except:
-            log('%s: unable to send email' % (podcast['name']), 'warning')
+            log('%-15s: unable to send email' % (podcast['name']), 'warning')
 
             return False
 
 
 def isQuiet():
-
     return (len(sys.argv) > 1 and sys.argv[1] == 'quiet')
+
+
+def isDebug():
+    return (len(sys.argv) > 1 and sys.argv[1] == 'debug')
 
 
 def log(message, messageType = 'info'):
 
     if not isQuiet() or messageType in ['error', 'critical']:
 
-        if messageType == 'debug':
+        if messageType == 'debug' and isDebug():
             logger.debug(message)
         elif messageType == 'info':
             logger.info(message)
