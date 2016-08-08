@@ -106,7 +106,7 @@ def getFeed(podcast):
             log('%-15s: get rss %s: %s (of %s) attempt failed' % (podcast['name'], podcast['rss'], str(attemptNum), str(podcast['attempt'])), 'warning')
 
             if attemptNum < podcast['attempt']:
-                time.sleep(attemptNum * podcat['attemptDelay'])
+                time.sleep(podcat['attemptDelay'])
 
             attemptNum += 1
         else:
