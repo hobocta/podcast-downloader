@@ -5,7 +5,7 @@
 from podcastDownloader import processPodcasts
 
 # Подключаем список подкастов
-from config import podcasts
+from config import config
 
 # Запускаем процесс
-processPodcasts(podcasts)
+processPodcasts(config['podcasts'], config['defaults'])

@@ -9,7 +9,6 @@ import datetime
 import logging
 import logging.config
 import urllib.request
-from random import shuffle
 from smtplib import SMTP
 from email.mime.text import MIMEText
 import feedparser
@@ -17,20 +16,41 @@ import feedparser
 logging.config.fileConfig(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logging.conf'))
 logger = logging.getLogger('podcastDownloader')
 
-def processPodcasts(podcasts):
+def processPodcasts(podcasts, defaults):
 
     log('Start')
 
-    shuffle(podcasts)
-
-    for podcast in podcasts:
-        processPodcast(podcast)
+    if checkDefaults(defaults):
+        for podcast in podcasts:
+            if checkPodcastParams(podcast):
+                podcast = fillDefaults(podcast, defaults)
+                processPodcast(podcast)
 
     log('Finish')
 
 
-def processPodcast(podcast):
+def checkDefaults(defaults):
 
+    for param in ['count', 'attempt', 'attemptDelay']:
+
+        if param not in defaults.keys():
+            log('Default param %s in not setted' % param, 'error')
+
+            return False
+
+    return True
+
+
+def fillDefaults(podcast, defaults):
+
+    for param in defaults:
+        if param not in podcast.keys() and param in defaults.keys():
+            podcast[param] = defaults[param]
+
+    return podcast
+
+
+def processPodcast(podcast):
     log('%-15s: start' % (podcast['name']), 'dubug')
 
     feed = getFeed(podcast)
@@ -39,9 +59,6 @@ def processPodcast(podcast):
         return
 
     log('%-15s: get feed' % (podcast['name']), 'dubug')
-
-    if 'count' not in podcast.keys():
-        podcast['count'] = 3
 
     reportSummary = getReportDefault()
 
@@ -60,6 +77,18 @@ def processPodcast(podcast):
     log('%-15s: finish' % (podcast['name']), 'dubug')
 
 
+def checkPodcastParams(podcast):
+
+    for param in ['name', 'rss', 'folder']:
+
+        if param not in podcast.keys():
+            log('Podcast param %s in not setted' % param, 'error')
+
+            return False
+
+    return True
+
+
 def getReportSumm(reportSummary, report):
     for key in reportSummary:
         reportSummary[key] = reportSummary[key] + report[key]
@@ -68,20 +97,18 @@ def getReportSumm(reportSummary, report):
 
 
 def getFeed(podcast):
+    attemptNum = 1
 
-    tryLimit = 3
-
-    tryNum = 1
-    while tryNum <= tryLimit:
+    while attemptNum <= podcast['attempt']:
         feed = feedparser.parse(podcast['rss'])
 
         if len(feed.entries) < 1:
-            log('%-15s: get rss %s: %s (of %s) attempt failed' % (podcast['name'], podcast['rss'], str(tryNum), str(tryLimit)), 'warning')
+            log('%-15s: get rss %s: %s (of %s) attempt failed' % (podcast['name'], podcast['rss'], str(attemptNum), str(podcast['attempt'])), 'warning')
 
-            if tryNum < tryLimit:
-                time.sleep(tryNum * 30)
+            if attemptNum < podcast['attempt']:
+                time.sleep(attemptNum * podcat['attemptDelay'])
 
-            tryNum += 1
+            attemptNum += 1
         else:
             break
 
@@ -119,11 +146,12 @@ def processPodcastEpisode(feed, podcast, item):
             if downloadEpisode(podcast, fileUrl, filePath):
                 report['downloadCount'] = report['downloadCount'] + 1
 
-            removeCount = removeOldEpisodes(podcast, podcast['count'])
-            report['removeCount'] = report['removeCount'] + removeCount
-
             if sendEmail(podcast, fileName):
                 report['emailCount'] = report['emailCount'] + 1
+
+        removeCount = removeOldEpisodes(podcast, podcast['count'])
+        report['removeCount'] = report['removeCount'] + removeCount
+
 
     return report
 
