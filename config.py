@@ -3,7 +3,7 @@
 
 config = {
     'defaults': {
-        'count': 2,
+        'count': 3,
         'attempt': 3,
         'attemptDelay': 30,
         'email': 'contact@site-home.ru'
