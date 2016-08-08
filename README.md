@@ -13,8 +13,13 @@ Package: [feedparser](https://pypi.python.org/pypi/feedparser)
 Config:
 
 ```
-podcasts = [
-    {
+config = [
+    'defaults': {
+        'count': 3,
+        'attempt': 3,
+        'attemptDelay': 30,
+    },
+    'podcasts': [
         'name': 'Radio-T',
         'rss': 'http://feeds.rucast.net/radio-t',
         'folder': '../podcasts/radio-t',
@@ -22,11 +27,20 @@ podcasts = [
 ]
 ```
 
+Defaults:
+* count: how many episodes will keep
+* attempt: how many times try to download feed on fail
+* attemptDelay: how many seconds betwen retry
+* email [optional]: email address for notification
+
+Podcasts:
 * name: podcast name for view in console log
 * rss: feed url
 * folder: path to episodes storage
-* count [optional]: how many episodes will keep, by default: 3
-* email [optional]: email address for notification
+* count [optional]: overwrite default param
+* attempt [optional]: overwrite default param
+* attemptDelay [optional]: overwrite default param
+* email [optional]: overwrite default param
 
 --
 
