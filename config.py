@@ -5,7 +5,7 @@ config = {
     'defaults': {
         'count': 3,
         'attempt': 3,
-        'attemptDelay': 30,
+        'attemptDelay': 60,
         'email': 'contact@site-home.ru'
     },
     'podcasts': [
