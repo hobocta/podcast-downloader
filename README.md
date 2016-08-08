@@ -61,7 +61,7 @@ python3 podcast-downloader/run.py debug
 
 Example usage on crontab:
 ```
-*/20 * * * * python3 podcast-downloader/run.py quiet
+0 * * * * python3 podcast-downloader/run.py quiet
 ```
 
 To use on Windows run file run.cmd.
