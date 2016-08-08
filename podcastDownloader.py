@@ -86,7 +86,7 @@ def getFeed(podcast):
             break
 
     if len(feed.entries) < 1:
-        log('%-15s: unable to get feed by url %s' % (podcast['name'], podcast['rss']), 'error')
+        log('%-15s: unable to get feed by url %s ' % (podcast['name'], podcast['rss']), 'error')
 
         return False
 
@@ -100,7 +100,7 @@ def processPodcastEpisode(feed, podcast, item):
     fileUrl = getFileUrlFromFeed(feed, podcast, item)
 
     if not fileUrl or len(fileUrl) < 24:
-        log('%-15s: unable to get link to file from feed by url %s' % (podcast['name'], podcast['rss']), 'error')
+        log('%-15s: unable to get link to file from feed by url %s ' % (podcast['name'], podcast['rss']), 'error')
 
     else:
         fileName = re.search('[0-9a-zA-Z\.\-_]+\.m[p34a]+', fileUrl).group()
