@@ -8,4 +8,4 @@ from podcastDownloader import processPodcasts
 from config import config
 
 # Запускаем процесс
-processPodcasts(config['podcasts'], config['defaults'])
+processPodcasts(config)

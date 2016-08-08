@@ -16,14 +16,14 @@ import feedparser
 logging.config.fileConfig(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logging.conf'))
 logger = logging.getLogger('podcastDownloader')
 
-def processPodcasts(podcasts, defaults):
+def processPodcasts(config):
 
     log('Start')
 
-    if checkDefaults(defaults):
-        for podcast in podcasts:
+    if checkDefaults(config['defaults']):
+        for podcast in config['podcasts']:
             if checkPodcastParams(podcast):
-                podcast = fillDefaults(podcast, defaults)
+                podcast = fillDefaults(podcast, config['defaults'])
                 processPodcast(podcast)
 
     log('Finish')
