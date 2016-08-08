@@ -49,7 +49,7 @@ Usage:
 python3 podcast-downloader/run.py
 ```
 
-Use argument "quiet" for hide output to console:
+Use argument "quiet" for hide output to console (except errors):
 ```
 python3 podcast-downloader/run.py quiet
 ```
