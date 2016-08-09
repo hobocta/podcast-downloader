@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Подключаем функции
+import os
+
 from podcastDownloader import processPodcasts
 
-# Подключаем список подкастов
-from config import config
+if os.path.exists('config.py'):
+	from config import config
+else:
+	from configSample import config
 
-# Запускаем процесс
 processPodcasts(config)
