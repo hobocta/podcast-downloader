@@ -3,11 +3,11 @@
 
 import os
 
-from podcastDownloader import processPodcasts
+from podcast_downloader import process_podcasts
 
 if os.path.exists('config.py'):
-	from config import config
+    from config import config
 else:
-	from configSample import config
+    from config_sample import config
 
-processPodcasts(config)
+process_podcasts(config)
