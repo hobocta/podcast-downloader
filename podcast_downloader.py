@@ -30,7 +30,7 @@ def process_podcasts(config):
 
 def check_defaults(defaults):
 
-    for param in ['count', 'attempt', 'attemptDelay']:
+    for param in ['count', 'attempt', 'attempt_delay']:
 
         if param not in defaults.keys():
             log('Default param %s in not setted' % param, 'error')
@@ -67,10 +67,10 @@ def process_podcast(podcast):
 
     log('%-15s: skipped: %s, downloaded: %s, deleted: %s, email sent: %s' % (
         podcast['name'],
-        report_summary['skipCount'],
-        report_summary['downloadCount'],
-        report_summary['removeCount'],
-        report_summary['emailCount']
+        report_summary['skip_count'],
+        report_summary['download_count'],
+        report_summary['remove_count'],
+        report_summary['email_count']
     ))
 
     log('%-15s: finish' % (podcast['name']), 'debug')
@@ -110,7 +110,7 @@ def get_feed(podcast):
             ), 'warning')
 
             if attempt_num < podcast['attempt']:
-                time.sleep(podcast['attemptDelay'])
+                time.sleep(podcast['attempt_delay'])
 
             attempt_num += 1
         else:
@@ -144,23 +144,23 @@ def process_podcast_episode(feed, podcast, item):
 
         if is_episode_exists(file_path):
             log('%-15s: skip, file already exists' % (podcast['name']), 'debug')
-            report['skipCount'] += 1
+            report['skip_count'] += 1
 
         else:
             if download_episode(podcast, file_url, file_path):
-                report['downloadCount'] += 1
+                report['download_count'] += 1
 
             if send_email(podcast, file_name):
-                report['emailCount'] += 1
+                report['email_count'] += 1
 
         remove_count = remove_old_episodes(podcast, podcast['count'])
-        report['removeCount'] += remove_count
+        report['remove_count'] += remove_count
 
     return report
 
 
 def get_report_default():
-    return {'skipCount': 0, 'downloadCount': 0, 'removeCount': 0, 'emailCount': 0}
+    return {'skip_count': 0, 'download_count': 0, 'remove_count': 0, 'email_count': 0}
 
 
 def get_file_url_from_feed(feed, item):
@@ -298,7 +298,9 @@ def is_debug():
 
 
 def log(message, message_type='info'):
+
     if not is_quiet() or message_type in ['error', 'critical']:
+
         if message_type == 'debug' and is_debug():
             logger.debug(message)
         elif message_type == 'info':
