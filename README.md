@@ -12,7 +12,7 @@ Package: [feedparser](https://pypi.python.org/pypi/feedparser)
 
 Create a file "config.py" for your configuration:
 ```
-> cp configSample.py config.py
+> cp config_sample.py config.py
 ```
 
 Config:
