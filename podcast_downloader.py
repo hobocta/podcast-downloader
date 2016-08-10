@@ -116,12 +116,16 @@ def get_feed(podcast):
         else:
             break
 
-    if len(feed.entries) < 1:
-        log('%-15s: unable to get feed by url %s ' % (podcast['name'], podcast['rss']), 'error')
+    try:
+        if len(feed.entries):
+            return feed
+        else:
+            log('%-15s: unable to get feed by url %s ' % (podcast['name'], podcast['rss']), 'error')
 
-        return False
+    except NameError:
+        log('NameError: variable "feed" does not exist', 'error')
 
-    return feed
+    return False
 
 
 def process_podcast_episode(feed, podcast, item):
