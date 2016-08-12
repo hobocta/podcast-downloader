@@ -21,7 +21,7 @@ Config:
 config = [
     'defaults': {
         'count': 3,
-        'attempt': 3,
+        'attempts': 3,
         'attemptDelay': 60,
     },
     'podcasts': [
@@ -34,7 +34,7 @@ config = [
 
 Defaults:
 * count: how many episodes will keep
-* attempt: how many times try to download feed on fail
+* attempts: how many times try to download feed on fail
 * attemptDelay: how many seconds betwen retry
 * email [optional]: email address for notification
 
@@ -43,7 +43,7 @@ Podcasts:
 * rss: feed url
 * folder: path to episodes storage
 * count [optional]: overwrite default param
-* attempt [optional]: overwrite default param
+* attempts [optional]: overwrite default param
 * attemptDelay [optional]: overwrite default param
 * email [optional]: overwrite default param
 

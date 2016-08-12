@@ -4,7 +4,7 @@
 config = {
     'defaults': {
         'count': 3,
-        'attempt': 3,
+        'attempts': 5,
         'attempt_delay': 60,
         'email': 'contact@site-home.ru'
     },

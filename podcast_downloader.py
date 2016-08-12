@@ -30,7 +30,7 @@ def process_podcasts(config):
 
 def check_defaults(defaults):
 
-    for param in ['count', 'attempt', 'attempt_delay']:
+    for param in ['count', 'attempts', 'attempt_delay']:
 
         if param not in defaults.keys():
             log('Default param %s in not setted' % param, 'error')
@@ -98,7 +98,7 @@ def get_report_summ(report_summary, report):
 def get_feed(podcast):
     attempt_num = 1
 
-    while attempt_num <= podcast['attempt']:
+    while attempt_num <= podcast['attempts']:
         feed = feedparser.parse(podcast['rss'])
 
         if len(feed.entries) < 1:
@@ -106,10 +106,10 @@ def get_feed(podcast):
                 podcast['name'],
                 podcast['rss'],
                 str(attempt_num),
-                str(podcast['attempt'])
+                str(podcast['attempts'])
             ), 'warning')
 
-            if attempt_num < podcast['attempt']:
+            if attempt_num < podcast['attempts']:
                 time.sleep(podcast['attempt_delay'])
 
             attempt_num += 1
@@ -120,7 +120,7 @@ def get_feed(podcast):
         if len(feed.entries):
             return feed
         else:
-            log('%-15s: unable to get feed by url %s ' % (podcast['name'], podcast['rss']), 'error')
+            log('%-15s: unable to get feed by url %s with %s attempts per %s seconds' % (podcast['name'], podcast['rss'], podcast['attempts'], podcast['attempt_delay']), 'error')
 
     except NameError:
         log('NameError: variable "feed" does not exist', 'error')
