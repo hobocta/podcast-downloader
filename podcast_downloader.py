@@ -102,11 +102,12 @@ def get_feed(podcast):
         feed = feedparser.parse(podcast['rss'])
 
         if len(feed.entries) < 1:
-            log('%-15s: get rss %s: %s (of %s) attempt failed' % (
+            log('%-15s: get rss %s: %s (of %s) attempt failed, http code: %s' % (
                 podcast['name'],
                 podcast['rss'],
                 str(attempt_num),
-                str(podcast['attempts'])
+                str(podcast['attempts']),
+                feed.status
             ), 'warning')
 
             if attempt_num < podcast['attempts']:
