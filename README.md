@@ -62,6 +62,11 @@ Use argument "quiet" for hide output to console (except errors):
 python3 podcast-downloader/run.py quiet
 ```
 
+Or argument "warning" for output warnings:
+```
+python3 podcast-downloader/run.py warning
+```
+
 Or argument "debug" for more output:
 ```
 python3 podcast-downloader/run.py debug

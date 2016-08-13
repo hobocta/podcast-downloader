@@ -301,11 +301,15 @@ def is_debug():
     return len(sys.argv) > 1 and sys.argv[1] == 'debug'
 
 
+def is_warning():
+    return len(sys.argv) > 1 and sys.argv[1] == 'warning'
+
+
 def log(message, message_type='info'):
 
-    if not is_quiet() or message_type in ['error', 'critical']:
+    if message_type in get_log_allowed_types():
 
-        if message_type == 'debug' and is_debug():
+        if message_type == 'debug':
             logger.debug(message)
         elif message_type == 'info':
             logger.info(message)
@@ -315,3 +319,15 @@ def log(message, message_type='info'):
             logger.error(message)
         elif message_type == 'critical':
             logger.critical(message)
+
+
+def get_log_allowed_types():
+
+    if is_quiet():
+        return ['error', 'critical']
+    elif is_warning():
+        return ['warning', 'error', 'critical']
+    elif is_debug():
+        return ['debug', 'info', 'warning', 'error', 'critical']
+    else:
+        return ['info', 'warning', 'error', 'critical']
