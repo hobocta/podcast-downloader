@@ -1,7 +1,7 @@
 podcast-downloader
 ==================
 
-This script will download podcasts from RSS feeds, notify you on email and rotate files when new episodes is come
+This script download podcasts from RSS feeds, notify you on email and rotate files when new episodes is come
 
 --
 
@@ -18,18 +18,21 @@ Create a file "config.py" for your configuration:
 Config:
 
 ```
-config = [
+config = {
     'defaults': {
         'count': 3,
-        'attempts': 3,
-        'attemptDelay': 60,
+        'attempts': 5,
+        'attempt_delay': 60,
     },
     'podcasts': [
-        'name': 'Radio-T',
-        'rss': 'http://feeds.rucast.net/radio-t',
-        'folder': '../podcasts/radio-t',
-    },
-]
+        {
+            'name': 'The Big Podcast',
+            'rss': 'http://bigpodcast.ru/rss',
+            'folder': '../podcasts/tbp',
+        },
+
+    ]
+}
 ```
 
 Defaults:
