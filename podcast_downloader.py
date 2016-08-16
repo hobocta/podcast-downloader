@@ -107,8 +107,11 @@ def get_feed(podcast):
                 podcast['rss'],
                 str(attempt_num),
                 str(podcast['attempts']),
-                feed.status
+                feed.status if 'status' in feed else 'none'
             ), 'warning')
+
+            if not 'status' in feed:
+                log(feed, 'warning')
 
             if attempt_num < podcast['attempts']:
                 time.sleep(podcast['attempt_delay'])
