@@ -110,9 +110,6 @@ def get_feed(podcast):
                 feed.status if 'status' in feed else 'none'
             ), 'warning')
 
-            if not 'status' in feed:
-                log(feed, 'warning')
-
             if attempt_num < podcast['attempts']:
                 time.sleep(podcast['attempt_delay'])
 
@@ -125,6 +122,7 @@ def get_feed(podcast):
             return feed
         else:
             log('%-15s: unable to get feed by url %s with %s attempts per %s seconds' % (podcast['name'], podcast['rss'], podcast['attempts'], podcast['attempt_delay']), 'error')
+            log(feed, 'error')
 
     except NameError:
         log('NameError: variable "feed" does not exist', 'error')
