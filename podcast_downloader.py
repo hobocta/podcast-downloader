@@ -276,7 +276,7 @@ def send_email(podcast, file_name):
     if 'email' in podcast and len(podcast['email']):
         msg = MIMEText(file_name)
 
-        msg['Subject'] = 'New episode of podcast %s: %s' % (podcast['name'], file_name)
+        msg['Subject'] = '%s: new episode - %s' % (podcast['name'], file_name)
         msg['From'] = podcast['email']
         msg['To'] = podcast['email']
 
