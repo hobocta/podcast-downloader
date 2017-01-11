@@ -16,7 +16,6 @@ logger = logging.getLogger('podcast_downloader')
 
 
 def process_podcasts(config):
-
     log('Start')
 
     if check_defaults(config['defaults']):
@@ -29,7 +28,6 @@ def process_podcasts(config):
 
 
 def check_defaults(defaults):
-
     for param in ['count', 'attempts', 'attempt_delay']:
 
         if param not in defaults.keys():
@@ -41,7 +39,6 @@ def check_defaults(defaults):
 
 
 def fill_defaults(podcast, defaults):
-
     for param in defaults:
         if param not in podcast.keys() and param in defaults.keys():
             podcast[param] = defaults[param]
@@ -77,7 +74,6 @@ def process_podcast(podcast):
 
 
 def check_podcast_params(podcast):
-
     for param in ['name', 'rss', 'folder']:
 
         if param not in podcast.keys():
@@ -121,7 +117,11 @@ def get_feed(podcast):
         if len(feed.entries):
             return feed
         else:
-            log('%-15s: unable to get feed by url %s with %s attempts per %s seconds' % (podcast['name'], podcast['rss'], podcast['attempts'], podcast['attempt_delay']), 'error')
+            log(
+                '%-15s: unable to get feed by url %s with %s attempts per %s seconds'
+                % (podcast['name'], podcast['rss'], podcast['attempts'], podcast['attempt_delay']),
+                'error'
+            )
             log(feed, 'error')
 
     except NameError:
@@ -131,7 +131,6 @@ def get_feed(podcast):
 
 
 def process_podcast_episode(feed, podcast, item):
-
     report = get_report_default()
 
     file_url = get_file_url_from_feed(feed, item)
@@ -170,7 +169,6 @@ def get_report_default():
 
 
 def get_file_url_from_feed(feed, item):
-
     file_url = False
 
     if type(feed) is feedparser.FeedParserDict and type(feed.entries) is list and len(feed.entries) > 0:
@@ -186,7 +184,6 @@ def get_file_url_from_feed(feed, item):
 
 
 def get_podcast_folder_path(folder):
-
     if not os.path.isabs(folder):
         folder = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), folder))
 
@@ -197,7 +194,6 @@ def get_podcast_folder_path(folder):
 
 
 def is_episode_exists(file_path):
-
     if os.path.isfile(file_path) and os.stat(file_path).st_size == 0:
         os.remove(file_path)
 
@@ -205,7 +201,6 @@ def is_episode_exists(file_path):
 
 
 def download_episode(podcast, file_url, file_path):
-
     log('%-15s: download start' % (podcast['name']), 'debug')
 
     if episode_save(file_url, file_path):
@@ -219,7 +214,6 @@ def download_episode(podcast, file_url, file_path):
 
 
 def episode_save(file_url, file_path):
-
     # download file
     local_file_path, headers = urllib.request.urlretrieve(file_url, file_path)
 
@@ -233,7 +227,6 @@ def episode_save(file_url, file_path):
 
 
 def remove_old_episodes(podcast, rotate):
-
     remove_count = 0
 
     if podcast['count']:
@@ -254,7 +247,6 @@ def remove_old_episodes(podcast, rotate):
 
 
 def get_stored_episodes(podcast):
-
     stored_edisodes = [os.path.join(podcast['folder'], f) for f in os.listdir(podcast['folder'])]
 
     # skip hidden files
@@ -272,7 +264,6 @@ def get_stored_episodes(podcast):
 
 
 def send_email(podcast, file_name):
-
     if 'email' in podcast and len(podcast['email']):
         msg = MIMEText(file_name)
 
@@ -308,7 +299,6 @@ def is_warning():
 
 
 def log(message, message_type='info'):
-
     if message_type in get_log_allowed_types():
 
         if message_type == 'debug':
@@ -324,7 +314,6 @@ def log(message, message_type='info'):
 
 
 def get_log_allowed_types():
-
     if is_quiet():
         return ['error', 'critical']
     elif is_warning():
