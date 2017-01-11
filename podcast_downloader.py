@@ -94,6 +94,8 @@ def get_report_summ(report_summary, report):
 def get_feed(podcast):
     attempt_num = 1
 
+    feed = None
+
     while attempt_num <= podcast['attempts']:
         feed = feedparser.parse(podcast['rss'])
 
@@ -117,11 +119,12 @@ def get_feed(podcast):
         if len(feed.entries):
             return feed
         else:
-            log(
-                '%-15s: unable to get feed by url %s with %s attempts per %s seconds'
-                % (podcast['name'], podcast['rss'], podcast['attempts'], podcast['attempt_delay']),
-                'error'
-            )
+            log('%-15s: unable to get feed by url %s with %s attempts per %s seconds' % (
+                podcast['name'],
+                podcast['rss'],
+                podcast['attempts'],
+                podcast['attempt_delay']
+            ), 'error')
             log(feed, 'error')
 
     except NameError:
