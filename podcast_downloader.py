@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
-import re
-import os
-import time
 import logging.config
+import os
+import re
+import sys
+import time
 import urllib.request
-from smtplib import SMTP
 from email.mime.text import MIMEText
+from smtplib import SMTP
+
 import feedparser
 
 logging.config.fileConfig(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logging.conf'))
