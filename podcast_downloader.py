@@ -15,7 +15,7 @@ logging.config.fileConfig(os.path.join(os.path.dirname(os.path.abspath(__file__)
 logger = logging.getLogger('podcast_downloader')
 
 
-def process_podcasts(config):
+def process_podcasts(config: dict) -> bool:
     log('Start')
 
     if check_defaults(config['defaults']):
@@ -26,8 +26,10 @@ def process_podcasts(config):
 
     log('Finish')
 
+    return True
 
-def check_defaults(defaults):
+
+def check_defaults(defaults: dict) -> bool:
     for param in ['count', 'attempts', 'attempt_delay']:
 
         if param not in defaults.keys():
@@ -38,7 +40,7 @@ def check_defaults(defaults):
     return True
 
 
-def fill_defaults(podcast, defaults):
+def fill_defaults(podcast: dict, defaults: dict) -> dict:
     for param in defaults:
         if param not in podcast.keys() and param in defaults.keys():
             podcast[param] = defaults[param]
@@ -46,13 +48,13 @@ def fill_defaults(podcast, defaults):
     return podcast
 
 
-def process_podcast(podcast):
+def process_podcast(podcast: dict) -> bool:
     log('%-15s: start' % (podcast['name']), 'debug')
 
     feed = get_feed(podcast)
 
-    if not feed:
-        return
+    if not hasattr(feed, 'entries'):
+        return False
 
     log('%-15s: get feed' % (podcast['name']), 'debug')
 
@@ -72,8 +74,10 @@ def process_podcast(podcast):
 
     log('%-15s: finish' % (podcast['name']), 'debug')
 
+    return True
 
-def check_podcast_params(podcast):
+
+def check_podcast_params(podcast: dict) -> bool:
     for param in ['name', 'rss', 'folder']:
 
         if param not in podcast.keys():
@@ -84,17 +88,17 @@ def check_podcast_params(podcast):
     return True
 
 
-def get_report_summ(report_summary, report):
+def get_report_summ(report_summary: dict, report: dict) -> dict:
     for key in report_summary:
         report_summary[key] = report_summary[key] + report[key]
 
     return report_summary
 
 
-def get_feed(podcast):
+def get_feed(podcast: dict) -> feedparser.FeedParserDict:
     attempt_num = 1
 
-    feed = None
+    feed = feedparser.FeedParserDict
 
     while attempt_num <= podcast['attempts']:
         feed = feedparser.parse(podcast['rss'])
@@ -130,10 +134,10 @@ def get_feed(podcast):
     except NameError:
         log('NameError: variable "feed" does not exist', 'error')
 
-    return False
+    return feedparser.FeedParserDict
 
 
-def process_podcast_episode(feed, podcast, item):
+def process_podcast_episode(feed: feedparser.FeedParserDict, podcast: dict, item: int) -> dict:
     report = get_report_default()
 
     file_url = get_file_url_from_feed(feed, item)
@@ -167,11 +171,11 @@ def process_podcast_episode(feed, podcast, item):
     return report
 
 
-def get_report_default():
+def get_report_default() -> dict:
     return {'skip_count': 0, 'download_count': 0, 'remove_count': 0, 'email_count': 0}
 
 
-def get_file_url_from_feed(feed, item):
+def get_file_url_from_feed(feed: feedparser.FeedParserDict, item: int) -> str:
     file_url = False
 
     if type(feed) is feedparser.FeedParserDict and type(feed.entries) is list and len(feed.entries) > 0:
@@ -186,7 +190,7 @@ def get_file_url_from_feed(feed, item):
     return file_url
 
 
-def get_podcast_folder_path(folder):
+def get_podcast_folder_path(folder: str) -> str:
     if not os.path.isabs(folder):
         folder = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), folder))
 
@@ -196,14 +200,14 @@ def get_podcast_folder_path(folder):
     return folder
 
 
-def is_episode_exists(file_path):
+def is_episode_exists(file_path: str) -> bool:
     if os.path.isfile(file_path) and os.stat(file_path).st_size == 0:
         os.remove(file_path)
 
     return os.path.isfile(file_path)
 
 
-def download_episode(podcast, file_url, file_path):
+def download_episode(podcast: dict, file_url: str, file_path: str) -> bool:
     log('%-15s: download start' % (podcast['name']), 'debug')
 
     if episode_save(file_url, file_path):
@@ -216,7 +220,7 @@ def download_episode(podcast, file_url, file_path):
         return False
 
 
-def episode_save(file_url, file_path):
+def episode_save(file_url: str, file_path: str) -> bool:
     # download file
     local_file_path, headers = urllib.request.urlretrieve(file_url, file_path)
 
@@ -229,7 +233,7 @@ def episode_save(file_url, file_path):
     return local_file_size > 0
 
 
-def remove_old_episodes(podcast, rotate):
+def remove_old_episodes(podcast: dict, rotate: int) -> int:
     remove_count = 0
 
     if podcast['count']:
@@ -249,7 +253,7 @@ def remove_old_episodes(podcast, rotate):
     return remove_count
 
 
-def get_stored_episodes(podcast):
+def get_stored_episodes(podcast: dict) -> list:
     stored_edisodes = [os.path.join(podcast['folder'], f) for f in os.listdir(podcast['folder'])]
 
     # skip hidden files
@@ -266,7 +270,7 @@ def get_stored_episodes(podcast):
     return stored_edisodes
 
 
-def send_email(podcast, file_name):
+def send_email(podcast: dict, file_name: str) -> bool:
     if 'email' in podcast and len(podcast['email']):
         msg = MIMEText(file_name)
 
@@ -289,19 +293,19 @@ def send_email(podcast, file_name):
             return False
 
 
-def is_quiet():
+def is_quiet() -> bool:
     return len(sys.argv) > 1 and sys.argv[1] == 'quiet'
 
 
-def is_debug():
+def is_debug() -> bool:
     return len(sys.argv) > 1 and sys.argv[1] == 'debug'
 
 
-def is_warning():
+def is_warning() -> bool:
     return len(sys.argv) > 1 and sys.argv[1] == 'warning'
 
 
-def log(message, message_type='info'):
+def log(message: str, message_type: str = 'info'):
     if message_type in get_log_allowed_types():
 
         if message_type == 'debug':
@@ -316,7 +320,7 @@ def log(message, message_type='info'):
             logger.critical(message)
 
 
-def get_log_allowed_types():
+def get_log_allowed_types() -> list:
     if is_quiet():
         return ['error', 'critical']
     elif is_warning():
