@@ -181,15 +181,12 @@ def get_file_name(file_url: str) -> str:
 
     file_name_re = get_file_name_re(file_url)
 
-    if file_name_re is not None:
-        file_name = file_name_re.group()
-
-    if len(file_name) < 1:
+    if file_name_re is None:
         file_url = get_redirect_url(file_url)
         file_name_re = get_file_name_re(file_url)
 
-        if file_name_re is not None:
-            file_name = file_name_re.group()
+    if file_name_re is not None:
+        file_name = file_name_re.group()
 
     return file_name
 
