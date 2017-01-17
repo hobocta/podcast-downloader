@@ -147,27 +147,34 @@ def process_podcast_episode(feed: feedparser.FeedParserDict, podcast: dict, item
         log('%-15s: unable to get link to file from feed by url %s ' % (podcast['name'], podcast['rss']), 'error')
 
     else:
-        file_name = re.search('[0-9a-zA-Z.\-_]+\.m[p34a]+', file_url).group()
+        file_name_re = re.search('[0-9a-zA-Z.\-_]+\.m[p34a]+', file_url)
 
-        log('%-15s: get link to file %s' % (podcast['name'], file_name), 'debug')
+        if not file_name_re:
+            log('%-15s: unable to get file name form link %s' % (podcast['name'], file_url), 'error')
 
-        podcast['folder'] = get_podcast_folder_path(podcast['folder'])
-
-        file_path = os.path.join(podcast['folder'], file_name)
-
-        if is_episode_exists(file_path):
-            log('%-15s: skip, file already exists' % (podcast['name']), 'debug')
             report['skip_count'] += 1
-
         else:
-            if download_episode(podcast, file_url, file_path):
-                report['download_count'] += 1
+            file_name = re.search('[0-9a-zA-Z.\-_]+\.m[p34a]+', file_url).group()
 
-            if send_email(podcast, file_name):
-                report['email_count'] += 1
+            log('%-15s: get link to file %s' % (podcast['name'], file_name), 'debug')
 
-        remove_count = remove_old_episodes(podcast, podcast['count'])
-        report['remove_count'] += remove_count
+            podcast['folder'] = get_podcast_folder_path(podcast['folder'])
+
+            file_path = os.path.join(podcast['folder'], file_name)
+
+            if is_episode_exists(file_path):
+                log('%-15s: skip, file already exists' % (podcast['name']), 'debug')
+                report['skip_count'] += 1
+
+            else:
+                if download_episode(podcast, file_url, file_path):
+                    report['download_count'] += 1
+
+                if send_email(podcast, file_name):
+                    report['email_count'] += 1
+
+            remove_count = remove_old_episodes(podcast, podcast['count'])
+            report['remove_count'] += remove_count
 
     return report
 
