@@ -147,15 +147,12 @@ def process_podcast_episode(feed: feedparser.FeedParserDict, podcast: dict, item
         log('%-15s: unable to get link to file from feed by url %s ' % (podcast['name'], podcast['rss']), 'error')
 
     else:
-        file_name_re = re.search('[0-9a-zA-Z.\-_]+\.m[p34a]+', file_url)
+        file_name = get_file_name(file_url)
 
-        if not file_name_re:
+        if len(file_name) < 1:
             log('%-15s: unable to get file name form link %s' % (podcast['name'], file_url), 'error')
-
             report['skip_count'] += 1
         else:
-            file_name = re.search('[0-9a-zA-Z.\-_]+\.m[p34a]+', file_url).group()
-
             log('%-15s: get link to file %s' % (podcast['name'], file_name), 'debug')
 
             podcast['folder'] = get_podcast_folder_path(podcast['folder'])
@@ -177,6 +174,32 @@ def process_podcast_episode(feed: feedparser.FeedParserDict, podcast: dict, item
             report['remove_count'] += remove_count
 
     return report
+
+
+def get_file_name(file_url: str) -> str:
+    file_name = ''
+
+    file_name_re = get_file_name_re(file_url)
+
+    if file_name_re is not None:
+        file_name = file_name_re.group()
+
+    if len(file_name) < 1:
+        file_url = get_redirect_url(file_url)
+        file_name_re = get_file_name_re(file_url)
+
+        if file_name_re is not None:
+            file_name = file_name_re.group()
+
+    return file_name
+
+
+def get_file_name_re(file_url: str) -> re.search:
+    return re.search('[0-9a-zA-Z.\-_]+\.m[p34a]+', file_url)
+
+
+def get_redirect_url(file_url: str) -> str:
+    return urllib.request.urlopen(file_url).geturl()
 
 
 def get_report_default() -> dict:
