@@ -203,17 +203,15 @@ def get_report_default() -> dict:
     return {'skip_count': 0, 'download_count': 0, 'remove_count': 0, 'email_count': 0}
 
 
-def get_file_url_from_feed(feed: feedparser.FeedParserDict, item: int) -> str:
+def get_file_url_from_feed(feed: feedparser.FeedParserDict, start_item: int) -> str:
     file_url = False
 
-    if type(feed) is feedparser.FeedParserDict and type(feed.entries) is list and len(feed.entries) > 0:
+    if type(feed) is feedparser.FeedParserDict and type(feed.entries) is list and len(feed.entries) >= start_item:
 
-        if len(feed.entries[item].enclosures) and type(feed.entries[item].enclosures[0].href) is str:
-            pass
-        elif len(feed.entries[item + 1].enclosures) and type(feed.entries[item + 1].enclosures[0].href) is str:
-            item += 1
-
-        file_url = feed.entries[item].enclosures[0].href
+        for item in range(start_item, len(feed.entries)):
+            if len(feed.entries[item].enclosures) and type(feed.entries[item].enclosures[0].href) is str:
+                file_url = feed.entries[item].enclosures[0].href
+                break
 
     return file_url
 
