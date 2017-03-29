@@ -9,6 +9,7 @@ import time
 import urllib.request
 from email.mime.text import MIMEText
 from smtplib import SMTP
+from typing import Type
 
 import feedparser
 
@@ -96,7 +97,7 @@ def get_report_summ(report_summary: dict, report: dict) -> dict:
     return report_summary
 
 
-def get_feed(podcast: dict) -> feedparser.FeedParserDict:
+def get_feed(podcast: dict) -> Type[feedparser.FeedParserDict]:
     attempt_num = 1
 
     feed = feedparser.FeedParserDict
@@ -138,7 +139,7 @@ def get_feed(podcast: dict) -> feedparser.FeedParserDict:
     return feedparser.FeedParserDict
 
 
-def process_podcast_episode(feed: feedparser.FeedParserDict, podcast: dict, item: int) -> dict:
+def process_podcast_episode(feed: Type[feedparser.FeedParserDict], podcast: dict, item: int) -> dict:
     report = get_report_default()
 
     file_url = get_file_url_from_feed(feed, item)
@@ -203,7 +204,7 @@ def get_report_default() -> dict:
     return {'skip_count': 0, 'download_count': 0, 'remove_count': 0, 'email_count': 0}
 
 
-def get_file_url_from_feed(feed: feedparser.FeedParserDict, start_item: int) -> str:
+def get_file_url_from_feed(feed: Type[feedparser.FeedParserDict], start_item: int) -> str:
     file_url = False
 
     if type(feed) is feedparser.FeedParserDict and type(feed.entries) is list and len(feed.entries) >= start_item:
