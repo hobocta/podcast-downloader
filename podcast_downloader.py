@@ -169,8 +169,8 @@ def process_podcast_episode(feed: Type[feedparser.FeedParserDict], podcast: dict
                 if download_episode(podcast, file_url, file_path):
                     report['download_count'] += 1
 
-                if send_email(podcast, file_name):
-                    report['email_count'] += 1
+                    if send_email(podcast, file_name):
+                        report['email_count'] += 1
 
             remove_count = remove_old_episodes(podcast, podcast['count'])
             report['remove_count'] += remove_count
