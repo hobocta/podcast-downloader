@@ -9,9 +9,10 @@ import time
 import urllib.request
 from email.mime.text import MIMEText
 from smtplib import SMTP
-from typing import Type
+from urllib.error import HTTPError
 
 import feedparser
+from typing import Type
 
 logging.config.fileConfig(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logging.conf'))
 logger = logging.getLogger('podcast_downloader')
@@ -249,7 +250,13 @@ def download_episode(podcast: dict, file_url: str, file_path: str) -> bool:
 
 def episode_save(file_url: str, file_path: str) -> bool:
     # download file
-    local_file_path, headers = urllib.request.urlretrieve(file_url, file_path)
+    try:
+        local_file_path, headers = urllib.request.urlretrieve(file_url, file_path)
+
+    except HTTPError as e:
+        print('Unable to download file by url: %s, except: %s' % (file_url, e), 'debug')
+
+        return False
 
     # get local file size
     local_file = open(local_file_path)
