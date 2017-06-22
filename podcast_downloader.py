@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 import logging.config
 import os
 import re
@@ -8,6 +7,7 @@ import sys
 import time
 import urllib.request
 from email.mime.text import MIMEText
+from http.client import RemoteDisconnected
 from smtplib import SMTP
 from urllib.error import HTTPError
 
@@ -184,8 +184,12 @@ def get_file_name(file_url: str) -> str:
     file_name_re = get_file_name_re(file_url)
 
     if file_name_re is None:
-        file_url = get_redirect_url(file_url)
-        file_name_re = get_file_name_re(file_url)
+        try:
+            file_url = get_redirect_url(file_url)
+            file_name_re = get_file_name_re(file_url)
+        except RemoteDisconnected as e:
+            log('Unable to get redirect url, except: %s' % e, 'error')
+            return ''
 
     if file_name_re is not None:
         file_name = file_name_re.group()
@@ -254,7 +258,7 @@ def episode_save(file_url: str, file_path: str) -> bool:
         local_file_path, headers = urllib.request.urlretrieve(file_url, file_path)
 
     except HTTPError as e:
-        print('Unable to download file by url: %s, except: %s' % (file_url, e), 'debug')
+        log('Unable to download file by url: %s, except: %s' % (file_url, e), 'error')
 
         return False
 
@@ -356,10 +360,10 @@ def log(message: str, message_type: str = 'info'):
 
 def get_log_allowed_types() -> list:
     if is_quiet():
-        return ['error', 'critical']
+        return ['critical', 'error']
     elif is_warning():
-        return ['warning', 'error', 'critical']
+        return ['critical', 'error', 'warning']
     elif is_debug():
-        return ['debug', 'info', 'warning', 'error', 'critical']
+        return ['critical', 'error', 'warning', 'info', 'debug']
     else:
-        return ['info', 'warning', 'error', 'critical']
+        return ['critical', 'error', 'warning', 'info']
