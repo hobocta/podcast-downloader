@@ -10,6 +10,7 @@ from email.mime.text import MIMEText
 from http.client import RemoteDisconnected
 from smtplib import SMTP
 from urllib.error import HTTPError
+from urllib.error import URLError
 
 import feedparser
 from typing import Type
@@ -257,6 +258,11 @@ class PodcastDownloader:
             local_file_path, headers = urllib.request.urlretrieve(file_url, file_path)
 
         except HTTPError as e:
+            self.log('Unable to download file by url: %s, except: %s' % (file_url, e), 'error')
+
+            return False
+
+        except URLError as e:
             self.log('Unable to download file by url: %s, except: %s' % (file_url, e), 'error')
 
             return False
