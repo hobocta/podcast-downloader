@@ -61,11 +61,5 @@ config = {
            'folder': '../podcasts/web-standards',
            'email': 'contact@site-home.ru',
         },
-        {
-           'name': 'Frontflip',
-           'rss': 'http://frontflip.me/podcast.xml',
-           'folder': '../podcasts/frontflip',
-           'email': 'contact@site-home.ru',
-        },
     ]
 }
