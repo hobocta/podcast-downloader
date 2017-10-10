@@ -50,16 +50,24 @@ config = {
             'folder': '../podcasts/inf100',
         },
         {
-           'name': 'DevZen',
-           'rss': 'http://devzen.ru/feed/',
-           'folder': '../podcasts/devzen',
-           'email': 'contact@site-home.ru',
+            'name': 'DevZen',
+            'rss': 'http://devzen.ru/feed/',
+            'folder': '../podcasts/devzen',
         },
         {
-           'name': 'Web standards',
-           'rss': 'http://feeds.soundcloud.com/users/soundcloud:users:202737209/sounds.rss',
-           'folder': '../podcasts/web-standards',
-           'email': 'contact@site-home.ru',
+            'name': 'Web standards',
+            'rss': 'http://feeds.soundcloud.com/users/soundcloud:users:202737209/sounds.rss',
+            'folder': '../podcasts/web-standards',
+        },
+        {
+            'name': 'Five min php',
+            'rss': 'http://feeds.soundcloud.com/users/soundcloud:users:153519653/sounds.rss',
+            'folder': '../podcasts/fiveminphp',
+        },
+        {
+            'name': 'Ostretsov',
+            'rss': 'http://podcast.ostretsov.ru/feed/rss.xml',
+            'folder': '../podcasts/ostretsov',
         },
     ]
 }
