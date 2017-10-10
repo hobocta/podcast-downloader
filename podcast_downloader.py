@@ -192,6 +192,9 @@ class PodcastDownloader:
             except RemoteDisconnected as e:
                 self.log('Unable to get redirect url, except: %s' % e, 'error')
                 return ''
+            except HTTPError as e:
+                self.log('Unable to get redirect url, except: %s' % e, 'error')
+                return ''
 
         if file_name_re is not None:
             file_name = file_name_re.group()
