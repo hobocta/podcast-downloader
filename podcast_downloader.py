@@ -218,11 +218,11 @@ class PodcastDownloader:
         file_url = False
 
         if type(feed) is feedparser.FeedParserDict and type(feed.entries) is list and len(feed.entries) >= start_item:
-
             for item in range(start_item, len(feed.entries)):
-                if len(feed.entries[item].enclosures) and type(feed.entries[item].enclosures[0].href) is str:
-                    file_url = feed.entries[item].enclosures[0].href
-                    break
+                if 'enclosures' in feed.entries[item]:
+                    if len(feed.entries[item].enclosures) and type(feed.entries[item].enclosures[0].href) is str:
+                        file_url = feed.entries[item].enclosures[0].href
+                        break
 
         return file_url
 
