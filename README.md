@@ -26,11 +26,10 @@ config = {
     },
     'podcasts': [
         {
-            'name': 'The Big Podcast',
-            'rss': 'http://bigpodcast.ru/rss',
-            'folder': '../podcasts/tbp',
+            'name': 'Radio-T',
+            'rss': 'http://feeds.rucast.net/radio-t',
+            'folder': '../podcasts/radio-t',
         },
-
     ]
 }
 ```
