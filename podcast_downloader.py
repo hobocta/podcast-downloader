@@ -9,11 +9,11 @@ import urllib.request
 from email.mime.text import MIMEText
 from http.client import RemoteDisconnected
 from smtplib import SMTP
+from typing import Type
 from urllib.error import HTTPError
 from urllib.error import URLError
 
 import feedparser
-from typing import Type
 
 
 class PodcastDownloader:
