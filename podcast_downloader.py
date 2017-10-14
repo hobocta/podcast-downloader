@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+import json
 import logging.config
 import os
 import re
 import sys
 import time
+import urllib.parse
 import urllib.request
 from email.mime.text import MIMEText
 from http.client import RemoteDisconnected
@@ -152,7 +155,21 @@ class PodcastDownloader:
             )
 
         else:
-            file_name = self.get_file_name(file_url)
+            if self.is_google_drive_url(file_url):
+                if 'google_drive_api_key' in podcast.keys():
+                    file_id = self.get_google_drive_file_id(file_url)
+
+                    try:
+                        file_name = self.get_google_drive_file_name(podcast, file_id)
+                        file_url = self.get_google_drive_file_url(podcast, file_id)
+                    except HTTPError as e:
+                        self.log('Unable to get name or url of google drive file, except: %s' % e, 'error')
+                        file_name = ''
+                else:
+                    file_name = ''
+                    self.log('%-15s: empty parameter "google_drive_api_key" in config' % (podcast['name']), 'error')
+            else:
+                file_name = self.get_file_name(file_url)
 
             if len(file_name) < 1:
                 self.log('%-15s: unable to get file name form link %s' % (podcast['name'], file_url), 'error')
@@ -179,6 +196,27 @@ class PodcastDownloader:
                 report['remove_count'] += remove_count
 
         return report
+
+    @staticmethod
+    def is_google_drive_url(file_url: str) -> bool:
+        return re.match('^https://drive\.google\.com/open\?id=.*$', file_url) is not None
+
+    @staticmethod
+    def get_google_drive_file_id(file_url: str) -> str:
+        query = urllib.parse.urlsplit(file_url).query
+        parse_qs = urllib.parse.parse_qs(query)
+        return parse_qs['id'].pop()
+
+    @staticmethod
+    def get_google_drive_file_name(podcast: dict, file_id: str) -> str:
+        url = 'https://content.googleapis.com/drive/v3/files/%s?key=%s' % (file_id, podcast['google_drive_api_key'])
+        file_info = json.loads(urllib.request.urlopen(url).read())
+        return file_info['name']
+
+    @staticmethod
+    def get_google_drive_file_url(podcast: dict, file_id: str) -> str:
+        return 'https://content.googleapis.com/drive/v3/files/%s?alt=media&key=%s' \
+               % (file_id, podcast['google_drive_api_key'])
 
     def get_file_name(self, file_url: str) -> str:
         file_name = ''
