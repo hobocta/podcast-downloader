@@ -163,7 +163,7 @@ class PodcastDownloader:
                         file_name = self.get_google_drive_file_name(podcast, file_id)
                         file_url = self.get_google_drive_file_url(podcast, file_id)
                     except HTTPError as e:
-                        self.log('Unable to get name or url of google drive file, except: %s' % e, 'error')
+                        self.log('Unable to get name of google drive file, except: %s' % e, 'error')
                         file_name = ''
                 else:
                     file_name = ''
