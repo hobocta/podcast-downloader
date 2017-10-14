@@ -6,7 +6,9 @@ config = {
         'count': 3,
         'attempts': 5,
         'attempt_delay': 60,
-        'email': 'contact@site-home.ru'
+        'email': 'contact@site-home.ru',
+        # Get your key there https://console.developers.google.com/apis/credentials
+        # 'google_drive_api_key': 'put-your-key-here'
     },
     'podcasts': [
         {
