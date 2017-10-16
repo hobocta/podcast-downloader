@@ -210,7 +210,8 @@ class PodcastDownloader:
     @staticmethod
     def get_google_drive_file_name(podcast: dict, file_id: str) -> str:
         url = 'https://content.googleapis.com/drive/v3/files/%s?key=%s' % (file_id, podcast['google_drive_api_key'])
-        file_info = json.loads(urllib.request.urlopen(url).read())
+        response = urllib.request.urlopen(url)
+        file_info = json.loads(response.read().decode(response.headers.get_content_charset('utf-8')))
         return file_info['name']
 
     @staticmethod
