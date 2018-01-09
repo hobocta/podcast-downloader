@@ -48,7 +48,7 @@ config = {
         },
         {
             'name': 'Infa 100%',
-            'rss': 'http://feeds.feedburner.com/inf100/WmpG',
+            'rss': 'https://rss.simplecast.com/podcasts/4121/rss',
             'folder': '../podcasts/inf100',
         },
         {
