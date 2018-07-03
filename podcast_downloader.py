@@ -31,8 +31,8 @@ class PodcastDownloader:
 
     @staticmethod
     def disable_https_verify():
-        if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
-                getattr(ssl, '_create_unverified_context', None)):
+        if not os.environ.get('PYTHONHTTPSVERIFY', '') and getattr(ssl, '_create_unverified_context', None):
+            # noinspection PyProtectedMember
             ssl._create_default_https_context = ssl._create_unverified_context
 
     def process_podcasts(self) -> bool:
