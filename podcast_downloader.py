@@ -5,6 +5,7 @@ import json
 import logging.config
 import os
 import re
+import ssl
 import sys
 import time
 import urllib.parse
@@ -25,6 +26,14 @@ class PodcastDownloader:
         self.logger = logging.getLogger('podcast_downloader')
 
         self.config = config
+
+        self.disable_https_verify()
+
+    @staticmethod
+    def disable_https_verify():
+        if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
+                getattr(ssl, '_create_unverified_context', None)):
+            ssl._create_default_https_context = ssl._create_unverified_context
 
     def process_podcasts(self) -> bool:
         self.log('Start')
