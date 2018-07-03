@@ -43,7 +43,7 @@ class PodcastDownloader:
         for param in ['count', 'attempts', 'attempt_delay']:
 
             if param not in defaults.keys():
-                self.log('Default param %s in not setted' % param, 'error')
+                self.log('Default param %s in not set' % param, 'error')
 
                 return False
 
@@ -89,7 +89,7 @@ class PodcastDownloader:
         for param in ['name', 'rss', 'folder']:
 
             if param not in podcast.keys():
-                self.log('Podcast param %s in not setted' % param, 'error')
+                self.log('Podcast param %s in not set' % param, 'error')
 
                 return False
 
@@ -322,36 +322,36 @@ class PodcastDownloader:
 
         if podcast['count']:
 
-            stored_edisodes = self.get_stored_episodes(podcast)
+            stored_episodes = self.get_stored_episodes(podcast)
 
-            while len(stored_edisodes) > rotate:
-                if os.path.exists(stored_edisodes[0]):
-                    os.remove(stored_edisodes[0])
+            while len(stored_episodes) > rotate:
+                if os.path.exists(stored_episodes[0]):
+                    os.remove(stored_episodes[0])
 
                     remove_count += 1
 
-                    self.log('%-15s: old episode deleted - %s' % (podcast['name'], stored_edisodes[0]), 'debug')
+                    self.log('%-15s: old episode deleted - %s' % (podcast['name'], stored_episodes[0]), 'debug')
 
-                stored_edisodes.remove(stored_edisodes[0])
+                stored_episodes.remove(stored_episodes[0])
 
         return remove_count
 
     @staticmethod
     def get_stored_episodes(podcast: dict) -> list:
-        stored_edisodes = [os.path.join(podcast['folder'], f) for f in os.listdir(podcast['folder'])]
+        stored_episodes = [os.path.join(podcast['folder'], f) for f in os.listdir(podcast['folder'])]
 
         # skip hidden files
-        stored_edisodes_tmp = []
-        for i in range(len(stored_edisodes)):
-            if re.match('^\.', stored_edisodes[i]) is None:
-                stored_edisodes_tmp.append(stored_edisodes[i])
+        stored_episodes_tmp = []
+        for i in range(len(stored_episodes)):
+            if re.match('^\.', stored_episodes[i]) is None:
+                stored_episodes_tmp.append(stored_episodes[i])
 
-        stored_edisodes = stored_edisodes_tmp
+        stored_episodes = stored_episodes_tmp
 
         # sort by date
-        stored_edisodes.sort(key=lambda x: os.path.getmtime(x))
+        stored_episodes.sort(key=lambda x: os.path.getmtime(x))
 
-        return stored_edisodes
+        return stored_episodes
 
     def send_email(self, podcast: dict, file_name: str) -> bool:
         if 'email' in podcast and len(podcast['email']):
