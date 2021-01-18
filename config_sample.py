@@ -66,10 +66,5 @@ config = {
             'rss': 'http://feeds.soundcloud.com/users/soundcloud:users:153519653/sounds.rss',
             'folder': '../podcasts/fiveminphp',
         },
-        {
-            'name': 'Ostretsov',
-            'rss': 'http://podcast.ostretsov.ru/feed/rss.xml',
-            'folder': '../podcasts/ostretsov',
-        },
     ]
 }
