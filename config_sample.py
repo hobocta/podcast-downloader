@@ -6,16 +6,11 @@ config = {
         'count': 3,
         'attempts': 5,
         'attempt_delay': 60,
-        'email': 'contact@site-home.ru',
+        # 'email': 'test@example.com',
         # Get your key there https://console.developers.google.com/apis/credentials
         # 'google_drive_api_key': 'put-your-key-here'
     },
     'podcasts': [
-        {
-            'name': 'The Big Podcast',
-            'rss': 'http://bigpodcast.ru/rss',
-            'folder': '../podcasts/tbp',
-        },
         {
             'name': 'Radio-T',
             'rss': 'http://feeds.rucast.net/radio-t',
@@ -27,11 +22,6 @@ config = {
             'folder': '../podcasts/pirate',
         },
         {
-            'name': 'RubyNoName',
-            'rss': 'http://feeds.feedburner.com/rubynoname-standalone',
-            'folder': '../podcasts/rubynoname',
-        },
-        {
             'name': 'Razbor Poletov',
             'rss': 'http://feeds.feedburner.com/razbor-podcast',
             'folder': '../podcasts/razbor-poletov',
@@ -40,11 +30,6 @@ config = {
             'name': 'Umputun',
             'rss': 'http://feeds.rucast.net/Umputun',
             'folder': '../podcasts/umputun',
-        },
-        {
-            'name': 'AppleInsider',
-            'rss': 'http://ai.libsyn.com/rss',
-            'folder': '../podcasts/appleinsider',
         },
         {
             'name': 'Infa 100%',
@@ -63,7 +48,7 @@ config = {
         },
         {
             'name': 'Five min php',
-            'rss': 'http://feeds.soundcloud.com/users/soundcloud:users:153519653/sounds.rss',
+            'rss': 'https://cloud.mave.digital/32782',
             'folder': '../podcasts/fiveminphp',
         },
     ]
