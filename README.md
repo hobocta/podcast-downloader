@@ -53,27 +53,27 @@ Podcasts:
 
 Usage:
 ```
-python podcast-downloader/run.py
+python3 podcast-downloader/run.py
 ```
 
 Use argument "quiet" for hide output to console (except errors):
 ```
-python podcast-downloader/run.py quiet
+python3 podcast-downloader/run.py quiet
 ```
 
 Or argument "warning" for output warnings:
 ```
-python podcast-downloader/run.py warning
+python3 podcast-downloader/run.py warning
 ```
 
 Or argument "debug" for more output:
 ```
-python podcast-downloader/run.py debug
+python3 podcast-downloader/run.py debug
 ```
 
 Example usage on crontab:
 ```
-0 * * * * python podcast-downloader/run.py quiet
+0 * * * * python3 podcast-downloader/run.py quiet
 ```
 
 To use on Windows run file run.cmd.
