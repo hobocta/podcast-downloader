@@ -43,7 +43,7 @@ config = {
         },
         {
             'name': 'Web standards',
-            'rss': 'http://feeds.soundcloud.com/users/soundcloud:users:202737209/sounds.rss',
+            'rss': 'https://web-standards.ru/podcast/feed/',
             'folder': '../podcasts/web-standards',
         },
         {
